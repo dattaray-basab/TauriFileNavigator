@@ -28,11 +28,9 @@ import { File } from "lucide-react";
 import { useTheme } from "@/components/common";
 import { useAtom } from "jotai";
 import { searchState } from "../common/stateMgt";
-import path from "path-browserify";
 import { useEffect, useState } from "react";
 import { SearchHighlighter } from "./SearchHighlighter";
 import { toPlatformPath } from "@/components/common/functions/platform";
-import { FORWARD_SLASH } from "@/components/common/constants/filesys";
 import { platform } from "@/components/common/functions/platform";
 
 interface SearchResultsProps {

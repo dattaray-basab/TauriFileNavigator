@@ -36,26 +36,6 @@ const initPlatform = async () => {
 // Initialize platform on module load
 initPlatform().catch(console.error);
 
-// We only need toPlatformPath when:
-// Displaying paths to the user
-// Interacting with the file system
-// Passing paths to platform-specific APIs
-export const toPlatformPath = (normalizedPath: string): string => {
-  const separator = platform.getSeparator();
-
-  // Special handling for Windows drive letters
-  if (platform.isWindows()) {
-    // If the path already has backslashes, preserve them
-    if (normalizedPath.includes(BACK_SLASH)) {
-      return normalizedPath;
-    }
-    // Otherwise, convert forward slashes to backslashes
-    return normalizedPath.replace(/\//g, BACK_SLASH);
-  }
-
-  return normalizedPath.replace(/\\/g, FORWARD_SLASH);
-};
-
 export const platform = {
   // OS Detection
   getOS: () => {
@@ -308,6 +288,24 @@ export const platform = {
       availableDrives: ["/"],
     };
   },
+};
+
+// We only need toPlatformPath when:
+// Displaying paths to the user
+// Interacting with the file system
+// Passing paths to platform-specific APIs
+export const toPlatformPath = (normalizedPath: string): string => {
+  // Special handling for Windows drive letters
+  if (platform.isWindows()) {
+    // If the path already has backslashes, preserve them
+    if (normalizedPath.includes(BACK_SLASH)) {
+      return normalizedPath;
+    }
+    // Otherwise, convert forward slashes to backslashes
+    return normalizedPath.replace(/\//g, BACK_SLASH);
+  }
+
+  return normalizedPath.replace(/\\/g, FORWARD_SLASH);
 };
 
 // Hook for reactive platform checks
