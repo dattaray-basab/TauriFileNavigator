@@ -19,9 +19,15 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+//
+// The author would also like to give special thanks to the contributors of https://github.com/Souvlaki42/file-manager.git
+// for providing inspiration for this project.
 
 #[cfg(not(target_os = "macos"))]
 use crate::platform;
+
+use dirs;
+use std::path::PathBuf;
 
 #[tauri::command]
 pub async fn get_available_drives() -> Result<Vec<String>, String> {
@@ -45,83 +51,110 @@ pub async fn get_available_drives() -> Result<Vec<String>, String> {
             ("Music", dirs::audio_dir()),
             ("Movies", dirs::video_dir())
         ];
-
-        // Collect all valid paths
-        for (_name, dir) in user_dirs {
-            if let Some(path) = dir {
-                if path.exists() {
-                    paths.push(path.to_string_lossy().to_string());
+        
+        for (_, dir) in user_dirs.iter() {
+            if let Some(dir) = dir {
+                paths.push(dir.to_string_lossy().to_string());
+            }
+        }
+        
+        // Add system directories
+        let system_dirs = [
+            (PathBuf::from("/Applications"), "Applications (System)"),
+            (PathBuf::from("/Library"), "Library (System)"),
+            (PathBuf::from("/System"), "System"),
+            (PathBuf::from("/Users"), "Users"),
+            (PathBuf::from("/Volumes"), "Volumes"),
+        ];
+        
+        for (path, _) in system_dirs.iter() {
+            if path.exists() {
+                paths.push(path.to_string_lossy().to_string());
+            }
+        }
+        
+        Ok(paths)
+    }
+    
+    #[cfg(not(target_os = "macos"))]
+    {
+        let mut drives = Vec::new();
+        
+        // Check drives A: through Z:
+        for letter in b'A'..=b'Z' {
+            let drive = format!("{}:", letter as char);
+            if let Ok(metadata) = std::fs::metadata(&drive) {
+                if metadata.is_dir() {
+                    drives.push(drive);
                 }
             }
         }
-
-        // Add Applications directory (system and user)
-        let applications = [
-            (PathBuf::from("/Applications"), "Applications (System)"),
-            (home.join("Applications"), "Applications (User)")
-        ];
-
-        for (app_dir, label) in applications {
-            if app_dir.exists() {
-                // Store the full path but with a custom display name
-                paths.push(format!("{}|{}", app_dir.to_string_lossy(), label));
-            }
-        }
-
-        if paths.len() > 1 {  // Only sort if we have more than just home
-            // Sort paths by their directory names (excluding Home which is already first)
-            let home_path = paths.remove(0); // Remove home temporarily
-            paths.sort_by(|a, b| {
-                let get_sort_key = |path: &str| {
-                    if let Some((_, label)) = path.split_once('|') {
-                        label.to_lowercase()
-                    } else {
-                        let path_buf = PathBuf::from(path);
-                        path_buf.file_name()
-                            .and_then(|n| n.to_str())
-                            .unwrap_or("")
-                            .to_lowercase()
-                    }
-                };
-                
-                get_sort_key(a).cmp(&get_sort_key(b))
-            });
-            paths.insert(0, home_path); // Put home back at the start
-        }
-
-        Ok(paths)
+        
+        Ok(drives)
     }
+}
 
-    #[cfg(target_os = "windows")]
+#[tauri::command]
+#[allow(dead_code)]
+pub async fn get_common_paths() -> Result<Vec<String>, String> {
+    #[cfg(target_os = "macos")]
     {
         let mut paths = Vec::new();
         
-        // Get all available local drives
-        let drives = platform::get_available_drives();
+        // Get current user's home directory
+        let home = dirs::home_dir()
+            .ok_or_else(|| "Could not determine home directory".to_string())?;
         
-        // Add each drive with a label
-        for drive in drives {
-            // Skip network drives (starting with \\)
-            if drive.starts_with("\\\\") {
-                continue;
+        // Add Home directory first (special case - always at top)
+        paths.push(home.to_string_lossy().to_string());
+        
+        // Add common user directories
+        let user_dirs = [
+            ("Desktop", dirs::desktop_dir()),
+            ("Documents", dirs::document_dir()),
+            ("Downloads", dirs::download_dir()),
+            ("Pictures", dirs::picture_dir()),
+            ("Music", dirs::audio_dir()),
+            ("Movies", dirs::video_dir())
+        ];
+        
+        for (_, dir) in user_dirs.iter() {
+            if let Some(dir) = dir {
+                let path_buf = PathBuf::from(dir);
+                if path_buf.exists() {
+                    paths.push(path_buf.to_string_lossy().to_string());
+                }
             }
-            
-            // Local drive - use the drive letter as the label
-            let drive_letter = drive.chars().next().unwrap_or('?');
-            let drive_name = format!("{}|Drive {}:", drive, drive_letter);
-            
-            paths.push(drive_name);
         }
-        
-        // Sort drives alphabetically
-        paths.sort();
         
         Ok(paths)
     }
-
-    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
+    
+    #[cfg(not(target_os = "macos"))]
     {
-        // For Linux and other platforms, use the platform-specific implementation
-        Ok(platform::get_available_drives())
+        let mut paths = Vec::new();
+        
+        // Get current user's home directory
+        if let Some(home) = dirs::home_dir() {
+            paths.push(home.to_string_lossy().to_string());
+        }
+        
+        // Add common user directories
+        let user_dirs = [
+            ("Desktop", dirs::desktop_dir()),
+            ("Documents", dirs::document_dir()),
+            ("Downloads", dirs::download_dir()),
+            ("Pictures", dirs::picture_dir()),
+            ("Music", dirs::audio_dir()),
+            ("Movies", dirs::video_dir())
+        ];
+        
+        for (_, dir) in user_dirs.iter() {
+            if let Some(dir) = dir {
+                paths.push(dir.to_string_lossy().to_string());
+            }
+        }
+        
+        Ok(paths)
     }
 } 

@@ -24,23 +24,35 @@
 // for providing inspiration for this project.
 
 use std::env;
-use std::os::windows::ffi::OsStrExt;
 use std::path::Path;
+
+#[cfg(target_os = "windows")]
+use std::os::windows::ffi::OsStrExt;
+#[cfg(target_os = "windows")]
 use winapi::um::fileapi::{GetFileAttributesW, GetLogicalDriveStringsW};
+#[cfg(target_os = "windows")]
 use winapi::um::winnt::FILE_ATTRIBUTE_HIDDEN;
 
 #[allow(dead_code)]
 pub fn is_hidden(path: &Path) -> bool {
-    // Convert path to wide string for Windows API
-    let wide: Vec<u16> = path.as_os_str().encode_wide().chain(Some(0)).collect();
+    #[cfg(target_os = "windows")]
+    {
+        // Convert path to wide string for Windows API
+        let wide: Vec<u16> = path.as_os_str().encode_wide().chain(Some(0)).collect();
 
-    // Get file attributes using Windows API
-    unsafe {
-        let attributes = GetFileAttributesW(wide.as_ptr());
-        if attributes == u32::MAX {
-            return false; // Error getting attributes
+        // Get file attributes using Windows API
+        unsafe {
+            let attributes = GetFileAttributesW(wide.as_ptr());
+            if attributes == u32::MAX {
+                return false; // Error getting attributes
+            }
+            attributes & FILE_ATTRIBUTE_HIDDEN != 0
         }
-        attributes & FILE_ATTRIBUTE_HIDDEN != 0
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        false
     }
 }
 
@@ -60,52 +72,44 @@ pub fn normalize_path(path: &str) -> String {
     path.replace('/', "\\")
 }
 
-pub fn get_common_paths() -> Vec<(String, String)> {
+pub fn get_common_paths() -> Result<Vec<String>, String> {
     let mut paths = Vec::new();
 
     // System Drive (usually C:)
-    paths.push(("System Drive".to_string(), get_system_drive()));
+    paths.push(get_system_drive());
 
     // User profile related paths
     if let Some(user_profile) = get_user_home() {
-        paths.push(("Home".to_string(), user_profile.clone()));
-        paths.push((
-            "Documents".to_string(),
-            format!("{}\\Documents", user_profile),
-        ));
-        paths.push(("Desktop".to_string(), format!("{}\\Desktop", user_profile)));
-        paths.push((
-            "Downloads".to_string(),
-            format!("{}\\Downloads", user_profile),
-        ));
-        paths.push((
-            "Pictures".to_string(),
-            format!("{}\\Pictures", user_profile),
-        ));
-        paths.push(("Music".to_string(), format!("{}\\Music", user_profile)));
-        paths.push(("Videos".to_string(), format!("{}\\Videos", user_profile)));
+        paths.push(user_profile.clone());
+        paths.push(format!("{}\\Documents", user_profile));
+        paths.push(format!("{}\\Desktop", user_profile));
+        paths.push(format!("{}\\Downloads", user_profile));
+        paths.push(format!("{}\\Pictures", user_profile));
+        paths.push(format!("{}\\Music", user_profile));
+        paths.push(format!("{}\\Videos", user_profile));
     }
 
     // Common system paths
     if let Ok(program_files) = env::var("ProgramFiles") {
-        paths.push(("Program Files".to_string(), program_files));
+        paths.push(program_files);
     }
     if let Ok(program_files_x86) = env::var("ProgramFiles(x86)") {
-        paths.push(("Program Files (x86)".to_string(), program_files_x86));
+        paths.push(program_files_x86);
     }
     if let Ok(appdata) = env::var("APPDATA") {
-        paths.push(("AppData".to_string(), appdata));
+        paths.push(appdata);
     }
 
-    paths
+    Ok(paths)
 }
 
 #[tauri::command]
-pub fn get_windows_common_paths() -> Vec<(String, String)> {
+pub fn get_windows_common_paths() -> Result<Vec<String>, String> {
     get_common_paths()
 }
 
 pub fn get_available_drives() -> Vec<String> {
+    #[cfg(target_os = "windows")]
     unsafe {
         // First get the required buffer size
         let buf_size = GetLogicalDriveStringsW(0, std::ptr::null_mut());
@@ -134,5 +138,10 @@ pub fn get_available_drives() -> Vec<String> {
             }
         }
         drives
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        Vec::new()
     }
 }

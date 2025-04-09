@@ -23,14 +23,13 @@
 // The author would also like to give special thanks to the contributors of https://github.com/Souvlaki42/file-manager.git
 // for providing inspiration for this project.
 
+use std::path::Path;
+
 #[cfg(target_os = "windows")]
 pub mod windows;
 
-#[cfg(target_os = "windows")]
-pub use windows::get_available_drives;
-
 #[cfg(not(target_os = "windows"))]
-pub mod linux;
+pub mod unix;
 
 #[cfg(target_os = "windows")]
 pub use windows::*;
@@ -69,4 +68,31 @@ pub fn get_system_drive() -> String {
 #[allow(dead_code)]
 pub fn get_user_home() -> Option<String> {
     dirs::home_dir().map(|p| p.to_string_lossy().into_owned())
+}
+
+/// Get available drives on the system
+pub fn get_available_drives() -> Vec<String> {
+    #[cfg(target_os = "windows")]
+    {
+        use std::fs;
+        let mut drives = Vec::new();
+
+        // Check drives A: through Z:
+        for letter in b'A'..=b'Z' {
+            let drive = format!("{}:", letter as char);
+            if let Ok(metadata) = fs::metadata(&drive) {
+                if metadata.is_dir() {
+                    drives.push(drive);
+                }
+            }
+        }
+
+        drives
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        // On Unix systems, we only have the root filesystem
+        vec![String::from("/")]
+    }
 }
