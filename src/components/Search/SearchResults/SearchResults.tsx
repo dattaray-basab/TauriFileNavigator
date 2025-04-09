@@ -33,6 +33,7 @@ import { useEffect, useState } from "react";
 import { SearchHighlighter } from "./SearchHighlighter";
 import { toPlatformPath } from "@/components/common/functions/platform";
 import { FORWARD_SLASH } from "@/components/common/constants/filesys";
+import { platform } from "@/components/common/functions/platform";
 
 interface SearchResultsProps {
   onFileSelect?: (filePath: string) => void;
@@ -160,15 +161,16 @@ function getDisplayPath(filePath: string): string {
   // Convert to platform-specific path for display
   const platformPath = toPlatformPath(filePath);
 
-  // Extract filename and parent directory
-  const fileName = path.basename(platformPath);
-  const parentDir = path.basename(path.dirname(platformPath));
+  // Split path into segments
+  const segments = platformPath.split(/[\\/]/).filter(Boolean);
 
-  if (parentDir === "." || parentDir === FORWARD_SLASH) {
-    return fileName;
-  }
+  if (segments.length === 0) return "";
+  if (segments.length === 1) return segments[0];
 
-  return `${parentDir}${FORWARD_SLASH}${fileName}`;
+  // Return last two segments (parent directory and filename)
+  return `${segments[segments.length - 2]}${platform.getSeparator()}${
+    segments[segments.length - 1]
+  }`;
 }
 
 // Helper function to highlight matches in text

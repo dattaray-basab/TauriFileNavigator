@@ -30,6 +30,7 @@ use dirs;
 use std::path::PathBuf;
 
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn get_available_drives() -> Result<Vec<String>, String> {
     #[cfg(target_os = "macos")]
     {

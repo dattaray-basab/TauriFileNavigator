@@ -71,6 +71,7 @@ pub fn get_user_home() -> Option<String> {
 }
 
 /// Get available drives on the system
+#[allow(dead_code)]
 pub fn get_available_drives() -> Vec<String> {
     #[cfg(target_os = "windows")]
     {

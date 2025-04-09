@@ -45,11 +45,15 @@ export const toPlatformPath = (normalizedPath: string): string => {
 
   // Special handling for Windows drive letters
   if (platform.isWindows()) {
-    // Ensure drive letter format is C:\
-    return normalizedPath.replace(/^([A-Za-z]):([\\/])?/, `$1:${separator}`);
+    // If the path already has backslashes, preserve them
+    if (normalizedPath.includes(BACK_SLASH)) {
+      return normalizedPath;
+    }
+    // Otherwise, convert forward slashes to backslashes
+    return normalizedPath.replace(/\//g, BACK_SLASH);
   }
 
-  return normalizedPath.replace(/\//g, separator);
+  return normalizedPath.replace(/\\/g, FORWARD_SLASH);
 };
 
 export const platform = {
