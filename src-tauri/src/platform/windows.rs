@@ -72,42 +72,53 @@ pub fn normalize_path(path: &str) -> String {
     path.replace('/', "\\")
 }
 
-pub fn get_common_paths() -> Result<Vec<String>, String> {
+pub fn get_common_paths() -> Result<Vec<(String, String)>, String> {
     let mut paths = Vec::new();
 
     // System Drive (usually C:)
-    paths.push(get_system_drive());
+    let system_drive = get_system_drive();
+    paths.push(("System Drive".to_string(), system_drive));
 
     // User profile related paths
     if let Some(user_profile) = get_user_home() {
-        paths.push(user_profile.clone());
-        paths.push(format!("{}\\Documents", user_profile));
-        paths.push(format!("{}\\Desktop", user_profile));
-        paths.push(format!("{}\\Downloads", user_profile));
-        paths.push(format!("{}\\Pictures", user_profile));
-        paths.push(format!("{}\\Music", user_profile));
-        paths.push(format!("{}\\Videos", user_profile));
+        paths.push(("Home".to_string(), user_profile.clone()));
+        paths.push((
+            "Documents".to_string(),
+            format!("{}\\Documents", user_profile),
+        ));
+        paths.push(("Desktop".to_string(), format!("{}\\Desktop", user_profile)));
+        paths.push((
+            "Downloads".to_string(),
+            format!("{}\\Downloads", user_profile),
+        ));
+        paths.push((
+            "Pictures".to_string(),
+            format!("{}\\Pictures", user_profile),
+        ));
+        paths.push(("Music".to_string(), format!("{}\\Music", user_profile)));
+        paths.push(("Videos".to_string(), format!("{}\\Videos", user_profile)));
     }
 
     // Common system paths
     if let Ok(program_files) = env::var("ProgramFiles") {
-        paths.push(program_files);
+        paths.push(("Program Files".to_string(), program_files));
     }
     if let Ok(program_files_x86) = env::var("ProgramFiles(x86)") {
-        paths.push(program_files_x86);
+        paths.push(("Program Files (x86)".to_string(), program_files_x86));
     }
     if let Ok(appdata) = env::var("APPDATA") {
-        paths.push(appdata);
+        paths.push(("AppData".to_string(), appdata));
     }
 
     Ok(paths)
 }
 
 #[tauri::command]
-pub fn get_windows_common_paths() -> Result<Vec<String>, String> {
+pub fn get_windows_common_paths() -> Result<Vec<(String, String)>, String> {
     get_common_paths()
 }
 
+#[allow(dead_code)]
 pub fn get_available_drives() -> Vec<String> {
     #[cfg(target_os = "windows")]
     unsafe {
