@@ -1,0 +1,53 @@
+{
+  "name": "decks",
+  "private": true,
+  "version": "1.0.0",
+  "author": {
+    "name": "Souvlaki42",
+    "email": "souvlaki42@souvlaki.me"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "build:prod": "tauri build",
+    "build:dbg": "tauri build --debug"
+  },
+  "dependencies": {
+    "@radix-ui/react-context-menu": "^2.2.6",
+    "@radix-ui/react-progress": "^1.0.3",
+    "@radix-ui/react-select": "^2.0.0",
+    "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-tooltip": "^1.1.8",
+    "@tauri-apps/api": "^1.5.2",
+    "@types/lodash": "^4.17.15",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "jotai": "^2.6.0",
+    "lodash": "^4.17.21",
+    "lucide-react": "^0.300.0",
+    "path-browserify": "^1.0.1",
+    "react": "^18.2.0",
+    "react-contexify": "^6.0.0",
+    "react-dom": "^18.2.0",
+    "react-split": "^2.0.14",
+    "tailwind-merge": "^2.2.0",
+    "tailwindcss-animate": "^1.0.7",
+    "valtio": "^2.1.4"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.5.8",
+    "@types/node": "^20.10.5",
+    "@types/path-browserify": "^1.0.3",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.0.3",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.0.2",
+    "vite": "^5.0.0"
+  }
+}
