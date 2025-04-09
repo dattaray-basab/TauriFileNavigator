@@ -54,66 +54,66 @@ pub fn normalize_path(path: &str) -> String {
     }
 }
 
-/// Get the system drive (e.g., "C:" on Windows, "/" on Unix)
-pub fn get_system_drive() -> String {
-    #[cfg(target_os = "windows")]
-    {
-        // On Windows, try to get the system drive from environment
-        std::env::var("SystemDrive").unwrap_or_else(|_| "C:".to_string())
-    }
 
-    #[cfg(not(target_os = "windows"))]
-    {
-        // On Unix systems, the root is "/"
-        String::from("/")
-    }
-}
+// pub fn get_system_drive() -> String {
+//     #[cfg(target_os = "windows")]
+//     {
+//         // On Windows, try to get the system drive from environment
+//         std::env::var("SystemDrive").unwrap_or_else(|_| "C:".to_string())
+//     }
 
-/// Get the user's home directory
-pub fn get_user_home() -> Option<String> {
-    #[cfg(target_os = "windows")]
-    {
-        // On Windows, try USERPROFILE first, then HOMEDRIVE + HOMEPATH
-        if let Ok(profile) = std::env::var("USERPROFILE") {
-            return Some(profile);
-        }
+//     #[cfg(not(target_os = "windows"))]
+//     {
+//         // On Unix systems, the root is "/"
+//         String::from("/")
+//     }
+// }
 
-        // Fallback to HOMEDRIVE + HOMEPATH
-        let drive = std::env::var("HOMEDRIVE").ok()?;
-        let path = std::env::var("HOMEPATH").ok()?;
-        Some(format!("{}{}", drive, path))
-    }
 
-    #[cfg(not(target_os = "windows"))]
-    {
-        // On Unix systems, use HOME environment variable
-        std::env::var("HOME").ok()
-    }
-}
+// pub fn get_user_home() -> Option<String> {
+//     #[cfg(target_os = "windows")]
+//     {
+//         // On Windows, try USERPROFILE first, then HOMEDRIVE + HOMEPATH
+//         if let Ok(profile) = std::env::var("USERPROFILE") {
+//             return Some(profile);
+//         }
 
-/// Get available drives on the system
-pub fn get_available_drives() -> Vec<String> {
-    #[cfg(target_os = "windows")]
-    {
-        use std::fs;
-        let mut drives = Vec::new();
+//         // Fallback to HOMEDRIVE + HOMEPATH
+//         let drive = std::env::var("HOMEDRIVE").ok()?;
+//         let path = std::env::var("HOMEPATH").ok()?;
+//         Some(format!("{}{}", drive, path))
+//     }
 
-        // Check drives A: through Z:
-        for letter in b'A'..=b'Z' {
-            let drive = format!("{}:", letter as char);
-            if let Ok(metadata) = fs::metadata(&drive) {
-                if metadata.is_dir() {
-                    drives.push(drive);
-                }
-            }
-        }
+//     #[cfg(not(target_os = "windows"))]
+//     {
+//         // On Unix systems, use HOME environment variable
+//         std::env::var("HOME").ok()
+//     }
+// }
 
-        drives
-    }
 
-    #[cfg(not(target_os = "windows"))]
-    {
-        // On Unix systems, we only have the root filesystem
-        vec![String::from("/")]
-    }
-}
+// pub fn get_available_drives() -> Vec<String> {
+//     #[cfg(target_os = "windows")]
+//     {
+//         use std::fs;
+//         let mut drives = Vec::new();
+
+//         // Check drives A: through Z:
+//         for letter in b'A'..=b'Z' {
+//             let drive = format!("{}:", letter as char);
+//             if let Ok(metadata) = fs::metadata(&drive) {
+//                 if metadata.is_dir() {
+//                     drives.push(drive);
+//                 }
+//             }
+//         }
+
+//         drives
+//     }
+
+//     #[cfg(not(target_os = "windows"))]
+//     {
+//         // On Unix systems, we only have the root filesystem
+//         vec![String::from("/")]
+//     }
+// }
