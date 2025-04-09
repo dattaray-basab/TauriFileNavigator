@@ -29,7 +29,7 @@ use serde::Serialize;
 #[derive(Debug, Serialize)]
 pub struct DriveInfo {
     pub system_drive: String,
-    pub user_home: Option<String>,
+    pub user_home: String,
     pub available_drives: Vec<String>,
 }
 
@@ -38,7 +38,7 @@ pub fn get_drive_info() -> DriveInfo {
     DriveInfo {
         system_drive: platform::get_system_drive(),
         user_home: platform::get_user_home(),
-        available_drives: platform::get_available_drives(),
+        available_drives: Vec::new(), // We'll get this from the platform-specific implementation
     }
 }
 

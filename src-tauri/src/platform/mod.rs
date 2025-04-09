@@ -25,18 +25,15 @@
 
 use std::path::Path;
 
+#[cfg(not(target_os = "windows"))]
+mod unix;
 #[cfg(target_os = "windows")]
-pub mod windows;
+mod windows;
 
 #[cfg(not(target_os = "windows"))]
-pub mod unix;
-
+pub use unix::{get_system_drive, get_user_home};
 #[cfg(target_os = "windows")]
-pub use windows::*;
-
-#[cfg(not(target_os = "windows"))]
-#[allow(unused_imports)]
-pub use unix::*;
+pub use windows::{get_system_drive, get_user_home};
 
 /// Platform-independent way to check if a path is hidden
 #[cfg(not(target_os = "windows"))]
@@ -52,22 +49,14 @@ pub fn is_hidden(path: &Path) -> bool {
 #[cfg(not(target_os = "windows"))]
 #[allow(dead_code)]
 pub fn normalize_path(path: &str) -> String {
-    // Replace Windows-style separators with Unix ones
-    path.replace('\\', "/")
-}
-
-/// Get the system drive (e.g., "C:" on Windows, "/" on Unix)
-#[cfg(not(target_os = "windows"))]
-#[allow(dead_code)]
-pub fn get_system_drive() -> String {
-    String::from("/")
-}
-
-/// Get the user's home directory
-#[cfg(not(target_os = "windows"))]
-#[allow(dead_code)]
-pub fn get_user_home() -> Option<String> {
-    dirs::home_dir().map(|p| p.to_string_lossy().into_owned())
+    #[cfg(target_os = "windows")]
+    {
+        path.replace('/', "\\")
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        path.replace('\\', "/")
+    }
 }
 
 /// Get available drives on the system
@@ -97,3 +86,8 @@ pub fn get_available_drives() -> Vec<String> {
         vec![String::from("/")]
     }
 }
+
+/// Type alias for platform-specific results.
+/// This type is used throughout the platform module to provide consistent error handling.
+#[allow(dead_code)]
+pub type PathResult<T> = Result<T, String>;

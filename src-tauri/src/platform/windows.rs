@@ -25,134 +25,81 @@
 
 use std::env;
 use std::path::Path;
+use windows::core::PCWSTR;
+use windows::Win32::Foundation::BOOL;
+use windows::Win32::Storage::FileSystem::{GetFileAttributesW, FILE_ATTRIBUTE_HIDDEN};
 
-#[cfg(target_os = "windows")]
-use std::os::windows::ffi::OsStrExt;
-#[cfg(target_os = "windows")]
-use winapi::um::fileapi::{GetFileAttributesW, GetLogicalDriveStringsW};
-#[cfg(target_os = "windows")]
-use winapi::um::winnt::FILE_ATTRIBUTE_HIDDEN;
-
-#[allow(dead_code)]
-pub fn is_hidden(path: &Path) -> bool {
-    #[cfg(target_os = "windows")]
-    {
-        // Convert path to wide string for Windows API
-        let wide: Vec<u16> = path.as_os_str().encode_wide().chain(Some(0)).collect();
-
-        // Get file attributes using Windows API
-        unsafe {
-            let attributes = GetFileAttributesW(wide.as_ptr());
-            if attributes == u32::MAX {
-                return false; // Error getting attributes
-            }
-            attributes & FILE_ATTRIBUTE_HIDDEN != 0
-        }
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    {
-        false
+pub fn is_hidden(path: &str) -> bool {
+    unsafe {
+        let wide_path: Vec<u16> = path.encode_utf16().chain(std::iter::once(0)).collect();
+        let path_ptr = PCWSTR::from_raw(wide_path.as_ptr());
+        let attributes = GetFileAttributesW(path_ptr);
+        attributes & FILE_ATTRIBUTE_HIDDEN.0 != 0
     }
 }
 
-#[allow(dead_code)]
 pub fn get_system_drive() -> String {
-    env::var("SystemDrive").unwrap_or_else(|_| String::from("C:"))
+    env::var("SystemDrive").unwrap_or_else(|_| "C:".to_string())
 }
 
-#[allow(dead_code)]
-pub fn get_user_home() -> Option<String> {
-    env::var("USERPROFILE").ok()
+pub fn get_user_home() -> String {
+    env::var("USERPROFILE").unwrap_or_else(|_| {
+        let drive = get_system_drive();
+        format!("{}\\Users\\Default", drive)
+    })
 }
 
-#[allow(dead_code)]
-pub fn normalize_path(path: &str) -> String {
-    // Replace Unix-style separators with Windows ones
-    path.replace('/', "\\")
-}
-
-pub fn get_common_paths() -> Result<Vec<(String, String)>, String> {
+pub fn get_common_paths() -> Result<Vec<String>, String> {
     let mut paths = Vec::new();
 
-    // System Drive (usually C:)
-    let system_drive = get_system_drive();
-    paths.push(("System Drive".to_string(), system_drive));
-
-    // User profile related paths
-    if let Some(user_profile) = get_user_home() {
-        paths.push(("Home".to_string(), user_profile.clone()));
-        paths.push((
-            "Documents".to_string(),
-            format!("{}\\Documents", user_profile),
-        ));
-        paths.push(("Desktop".to_string(), format!("{}\\Desktop", user_profile)));
-        paths.push((
-            "Downloads".to_string(),
-            format!("{}\\Downloads", user_profile),
-        ));
-        paths.push((
-            "Pictures".to_string(),
-            format!("{}\\Pictures", user_profile),
-        ));
-        paths.push(("Music".to_string(), format!("{}\\Music", user_profile)));
-        paths.push(("Videos".to_string(), format!("{}\\Videos", user_profile)));
+    // System paths
+    if let Ok(system_drive) = env::var("SystemDrive") {
+        paths.push(format!("{}\\", system_drive));
     }
 
-    // Common system paths
+    // User paths
+    if let Ok(user_profile) = env::var("USERPROFILE") {
+        paths.push(user_profile.clone());
+        paths.push(format!("{}\\Desktop", user_profile));
+        paths.push(format!("{}\\Documents", user_profile));
+        paths.push(format!("{}\\Downloads", user_profile));
+        paths.push(format!("{}\\Pictures", user_profile));
+        paths.push(format!("{}\\Music", user_profile));
+        paths.push(format!("{}\\Videos", user_profile));
+    }
+
+    // Program Files
     if let Ok(program_files) = env::var("ProgramFiles") {
-        paths.push(("Program Files".to_string(), program_files));
+        paths.push(program_files);
     }
     if let Ok(program_files_x86) = env::var("ProgramFiles(x86)") {
-        paths.push(("Program Files (x86)".to_string(), program_files_x86));
+        paths.push(program_files_x86);
     }
-    if let Ok(appdata) = env::var("APPDATA") {
-        paths.push(("AppData".to_string(), appdata));
+
+    // AppData paths
+    if let Ok(app_data) = env::var("APPDATA") {
+        paths.push(app_data);
+    }
+    if let Ok(local_app_data) = env::var("LOCALAPPDATA") {
+        paths.push(local_app_data);
     }
 
     Ok(paths)
 }
 
-#[tauri::command]
-pub fn get_windows_common_paths() -> Result<Vec<(String, String)>, String> {
-    get_common_paths()
-}
+pub fn get_drive_info() -> Result<(String, String, Vec<String>), String> {
+    let system_drive = get_system_drive();
+    let user_drive = get_system_drive(); // Usually the same as system drive on Windows
 
-#[allow(dead_code)]
-pub fn get_available_drives() -> Vec<String> {
-    #[cfg(target_os = "windows")]
-    unsafe {
-        // First get the required buffer size
-        let buf_size = GetLogicalDriveStringsW(0, std::ptr::null_mut());
-        if buf_size == 0 {
-            return Vec::new();
+    // Get all available drives
+    let mut drives = Vec::new();
+    for drive_letter in b'A'..=b'Z' {
+        let drive = format!("{}:", drive_letter as char);
+        let path = Path::new(&drive);
+        if path.exists() {
+            drives.push(drive);
         }
-
-        // Allocate buffer and get drive strings
-        let mut buffer: Vec<u16> = vec![0; buf_size as usize];
-        let len = GetLogicalDriveStringsW(buf_size, buffer.as_mut_ptr());
-        if len == 0 {
-            return Vec::new();
-        }
-
-        // Convert buffer to string and split into individual drives
-        let mut drives = Vec::new();
-        let mut start = 0;
-        for i in 0..len as usize {
-            if buffer[i] == 0 {
-                if start < i {
-                    if let Ok(drive) = String::from_utf16(&buffer[start..i]) {
-                        drives.push(drive);
-                    }
-                }
-                start = i + 1;
-            }
-        }
-        drives
     }
 
-    #[cfg(not(target_os = "windows"))]
-    {
-        Vec::new()
-    }
+    Ok((system_drive, user_drive, drives))
 }
