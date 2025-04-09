@@ -37,7 +37,7 @@ import {
   MENU_OPERATIONS,
 } from "@/components/common/types/constants";
 import { deleteFileSystemItem } from "@/components/FileOperations/fileOperations";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { valtioTreeStates } from "@/components/common/globalStateMgt/valtioTreeStates";
 
 interface NodeDetailsContextMenuProps {

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- * The author would like to give special thanks to the contributors of https://github.com/Souvlaki42/file-manager.git 
+ * The author would like to give special thanks to the contributors of https://github.com/Souvlaki42/file-manager.git
  * for providing inspiration for this project.
  */
 
@@ -30,10 +30,21 @@ import ReactDOM from "react-dom/client";
 import App from "./layouts/App";
 import "./globals.css";
 import { ThemeProvider } from "./components/common/theme/context";
-
+import { Toaster } from "sonner";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <ThemeProvider> <App /></ThemeProvider>
+    <ThemeProvider>
+      <App />
+      <Toaster
+        expand={true}
+        richColors
+        closeButton
+        style={{
+          maxWidth: "400px",
+          wordBreak: "break-word",
+        }}
+      />
+    </ThemeProvider>
   </React.StrictMode>
 );

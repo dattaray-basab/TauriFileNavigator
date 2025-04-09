@@ -63,7 +63,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
         aria-labelledby='confirm-modal-title'
         aria-describedby='confirm-modal-description'
         className={`${theme.bg.hi} fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                   rounded-md shadow-lg w-72 overflow-hidden border ${theme.border} z-50`}>
+                   rounded-md shadow-lg w-96 overflow-hidden border ${theme.border} z-50`}>
         {/* Header */}
         <div className={`p-4 text-center`}>
           <h3
@@ -75,7 +75,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
         {/* Message */}
         <div id='confirm-modal-description' className={`px-4 py-3`}>
-          <p className={`text-sm ${theme.fg.med}`}>
+          <p className={`text-sm ${theme.fg.med} break-words`}>
             Are you sure you want to delete the{" "}
             {isDirectory ? NODE_KINDS.DIRECTORY : NODE_KINDS.FILE} "{node.name}
             "?
