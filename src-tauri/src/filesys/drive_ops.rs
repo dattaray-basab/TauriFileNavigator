@@ -43,6 +43,7 @@ pub fn get_drive_info() -> DriveInfo {
 }
 
 #[cfg(target_os = "windows")]
+#[allow(dead_code)]
 fn get_available_drives() -> Result<Vec<String>, String> {
     // On Windows, use GetLogicalDriveStrings to get available drives
     use std::ffi::OsString;

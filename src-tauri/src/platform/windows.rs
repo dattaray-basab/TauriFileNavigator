@@ -24,10 +24,9 @@
 // for providing inspiration for this project.
 
 use std::env;
-use std::ffi::OsStr;
 use std::os::windows::ffi::OsStrExt;
 use std::path::Path;
-use winapi::um::fileapi::GetFileAttributesW;
+use winapi::um::fileapi::{GetFileAttributesW, GetLogicalDriveStringsW};
 use winapi::um::winnt::FILE_ATTRIBUTE_HIDDEN;
 
 #[allow(dead_code)]
@@ -104,4 +103,36 @@ pub fn get_common_paths() -> Vec<(String, String)> {
 #[tauri::command]
 pub fn get_windows_common_paths() -> Vec<(String, String)> {
     get_common_paths()
+}
+
+pub fn get_available_drives() -> Vec<String> {
+    unsafe {
+        // First get the required buffer size
+        let buf_size = GetLogicalDriveStringsW(0, std::ptr::null_mut());
+        if buf_size == 0 {
+            return Vec::new();
+        }
+
+        // Allocate buffer and get drive strings
+        let mut buffer: Vec<u16> = vec![0; buf_size as usize];
+        let len = GetLogicalDriveStringsW(buf_size, buffer.as_mut_ptr());
+        if len == 0 {
+            return Vec::new();
+        }
+
+        // Convert buffer to string and split into individual drives
+        let mut drives = Vec::new();
+        let mut start = 0;
+        for i in 0..len as usize {
+            if buffer[i] == 0 {
+                if start < i {
+                    if let Ok(drive) = String::from_utf16(&buffer[start..i]) {
+                        drives.push(drive);
+                    }
+                }
+                start = i + 1;
+            }
+        }
+        drives
+    }
 }

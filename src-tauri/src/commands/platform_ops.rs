@@ -23,9 +23,6 @@
 #[cfg(not(target_os = "macos"))]
 use crate::platform;
 
-use dirs;
-use std::path::PathBuf;
-
 #[tauri::command]
 pub async fn get_available_drives() -> Result<Vec<String>, String> {
     #[cfg(target_os = "macos")]
