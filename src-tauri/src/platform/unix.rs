@@ -26,6 +26,7 @@
 use std::env;
 use std::path::Path;
 
+#[allow(dead_code)]
 pub fn is_hidden(path: &Path) -> bool {
     path.file_name()
         .and_then(|name| name.to_str())
@@ -33,14 +34,17 @@ pub fn is_hidden(path: &Path) -> bool {
         .unwrap_or(false)
 }
 
+#[allow(dead_code)]
 pub fn get_system_drive() -> String {
     String::from("/")
 }
 
+#[allow(dead_code)]
 pub fn get_user_home() -> Option<String> {
     env::var("HOME").ok()
 }
 
+#[allow(dead_code)]
 pub fn normalize_path(path: &str) -> String {
     // Replace Windows-style separators with Unix ones
     path.replace('\\', "/")

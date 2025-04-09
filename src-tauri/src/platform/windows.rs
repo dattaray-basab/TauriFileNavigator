@@ -30,6 +30,7 @@ use std::path::Path;
 use winapi::um::fileapi::GetFileAttributesW;
 use winapi::um::winnt::FILE_ATTRIBUTE_HIDDEN;
 
+#[allow(dead_code)]
 pub fn is_hidden(path: &Path) -> bool {
     // Convert path to wide string for Windows API
     let wide: Vec<u16> = path.as_os_str().encode_wide().chain(Some(0)).collect();
@@ -44,14 +45,17 @@ pub fn is_hidden(path: &Path) -> bool {
     }
 }
 
+#[allow(dead_code)]
 pub fn get_system_drive() -> String {
     env::var("SystemDrive").unwrap_or_else(|_| String::from("C:"))
 }
 
+#[allow(dead_code)]
 pub fn get_user_home() -> Option<String> {
     env::var("USERPROFILE").ok()
 }
 
+#[allow(dead_code)]
 pub fn normalize_path(path: &str) -> String {
     // Replace Unix-style separators with Windows ones
     path.replace('/', "\\")

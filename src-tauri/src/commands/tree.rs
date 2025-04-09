@@ -114,3 +114,8 @@ pub fn get_tree_data(directory_path: String, recursive: bool) -> Vec<NodeDetails
 
     pathinfo_list
 }
+
+#[tauri::command]
+pub fn get_tree_data_command(directory_path: String, recursive: bool) -> Vec<NodeDetails> {
+    get_tree_data(directory_path, recursive)
+}

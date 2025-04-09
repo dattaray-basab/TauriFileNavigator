@@ -25,7 +25,22 @@
 
 use std::path::Path;
 
+#[cfg(target_os = "windows")]
+pub mod windows;
+
+#[cfg(not(target_os = "windows"))]
+pub mod unix;
+
+#[cfg(target_os = "windows")]
+pub use windows::*;
+
+#[cfg(not(target_os = "windows"))]
+#[allow(unused_imports)]
+pub use unix::*;
+
 /// Platform-independent way to check if a path is hidden
+#[cfg(not(target_os = "windows"))]
+#[allow(dead_code)]
 pub fn is_hidden(path: &Path) -> bool {
     path.file_name()
         .and_then(|name| name.to_str())
@@ -34,61 +49,25 @@ pub fn is_hidden(path: &Path) -> bool {
 }
 
 /// Normalize a path to the current platform's format
+#[cfg(not(target_os = "windows"))]
+#[allow(dead_code)]
 pub fn normalize_path(path: &str) -> String {
-    #[cfg(target_os = "windows")]
-    {
-        // On Windows, we use backslashes
-        path.replace('/', "\\")
-    }
-
-    #[cfg(target_os = "macos")]
-    {
-        // On macOS, we use forward slashes and remove /private prefix
-        path.replace('\\', "/").replace("/private/", "/")
-    }
-
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
-    {
-        // On other Unix systems, we use forward slashes
-        path.replace('\\', "/")
-    }
+    // Replace Windows-style separators with Unix ones
+    path.replace('\\', "/")
 }
 
 /// Get the system drive (e.g., "C:" on Windows, "/" on Unix)
+#[cfg(not(target_os = "windows"))]
+#[allow(dead_code)]
 pub fn get_system_drive() -> String {
-    #[cfg(target_os = "windows")]
-    {
-        // On Windows, try to get the system drive from environment
-        std::env::var("SystemDrive").unwrap_or_else(|_| "C:".to_string())
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    {
-        // On Unix systems, the root is "/"
-        String::from("/")
-    }
+    String::from("/")
 }
 
 /// Get the user's home directory
+#[cfg(not(target_os = "windows"))]
+#[allow(dead_code)]
 pub fn get_user_home() -> Option<String> {
-    #[cfg(target_os = "windows")]
-    {
-        // On Windows, try USERPROFILE first, then HOMEDRIVE + HOMEPATH
-        if let Ok(profile) = std::env::var("USERPROFILE") {
-            return Some(profile);
-        }
-
-        // Fallback to HOMEDRIVE + HOMEPATH
-        let drive = std::env::var("HOMEDRIVE").ok()?;
-        let path = std::env::var("HOMEPATH").ok()?;
-        Some(format!("{}{}", drive, path))
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    {
-        // On Unix systems, use HOME environment variable
-        std::env::var("HOME").ok()
-    }
+    dirs::home_dir().map(|p| p.to_string_lossy().into_owned())
 }
 
 /// Get available drives on the system

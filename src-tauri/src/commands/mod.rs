@@ -23,6 +23,7 @@
 // The author would also like to give special thanks to the contributors of https://github.com/Souvlaki42/file-manager.git
 // for providing inspiration for this project.
 
+pub mod file_ops;
 pub mod filesystem_ops;
 pub mod platform_ops;
 pub mod tree;

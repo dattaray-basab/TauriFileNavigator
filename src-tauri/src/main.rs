@@ -33,6 +33,12 @@ mod notifications;
 mod platform;
 
 use std::env;
+use filesys::drive_ops::get_drive_info;
+use commands::tree::get_tree_data_command;
+use commands::file_ops::{create_file, create_directory, delete_path, rename_path};
+
+#[cfg(target_os = "windows")]
+use platform::windows::get_windows_common_paths;
 
 #[tauri::command]
 fn get_os_type() -> String {
@@ -55,20 +61,56 @@ async fn main() {
         }
     }
 
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![
-            commands::tree::get_tree_data,
-            search::search_ops::search_folder,
-            search::search_ops::cancel_search,
-            commands::filesystem_ops::create_filesystem_item,
-            commands::filesystem_ops::delete_file,
-            commands::filesystem_ops::delete_folder,
-            commands::filesystem_ops::read_file_content,
-            notifications::watch_ops::watch_filesys,
-            filesys::drive_ops::get_drive_info,
-            commands::platform_ops::get_available_drives,
-            get_os_type,
-        ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+    #[cfg(target_os = "windows")]
+    {
+        tauri::Builder::default()
+            .invoke_handler(tauri::generate_handler![
+                commands::tree::get_tree_data,
+                search::search_ops::search_folder,
+                search::search_ops::cancel_search,
+                commands::filesystem_ops::create_filesystem_item,
+                commands::filesystem_ops::delete_file,
+                commands::filesystem_ops::delete_folder,
+                commands::filesystem_ops::read_file_content,
+                notifications::watch_ops::watch_filesys,
+                filesys::drive_ops::get_drive_info,
+                commands::platform_ops::get_available_drives,
+                get_os_type,
+                get_drive_info,
+                get_tree_data_command,
+                create_file,
+                create_directory,
+                delete_path,
+                rename_path,
+                get_windows_common_paths,
+            ])
+            .run(tauri::generate_context!())
+            .expect("error while running tauri application");
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        tauri::Builder::default()
+            .invoke_handler(tauri::generate_handler![
+                commands::tree::get_tree_data,
+                search::search_ops::search_folder,
+                search::search_ops::cancel_search,
+                commands::filesystem_ops::create_filesystem_item,
+                commands::filesystem_ops::delete_file,
+                commands::filesystem_ops::delete_folder,
+                commands::filesystem_ops::read_file_content,
+                notifications::watch_ops::watch_filesys,
+                filesys::drive_ops::get_drive_info,
+                commands::platform_ops::get_available_drives,
+                get_os_type,
+                get_drive_info,
+                get_tree_data_command,
+                create_file,
+                create_directory,
+                delete_path,
+                rename_path,
+            ])
+            .run(tauri::generate_context!())
+            .expect("error while running tauri application");
+    }
 }
