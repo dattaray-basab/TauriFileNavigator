@@ -44,6 +44,7 @@ import { useSnapshot } from "valtio";
 import { valtioTreeStates } from "../../common/globalStateMgt/valtioTreeStates";
 import { toPlatformPath } from "@/components/common/functions/platform";
 import { FORWARD_SLASH } from "@/components/common/constants/filesys";
+import { useWindowsPaths } from "@/components/common/hooks/useWindowsPaths";
 
 type FavoritesListProps = {
   paths: string[];
@@ -130,8 +131,8 @@ export function Favorites() {
   const { theme } = useTheme();
   const setPaths = useSetAtom(jotaiPathStates.pathsState);
   const [pathIndex, setPathIndex] = useAtom(jotaiPathStates.pathIndexState);
-  // const setSelectedPathinfo = useSetAtom(jotaiPathStates.selectedPathinfoState);
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
+  const { commonPaths, isWindows } = useWindowsPaths();
 
   const [favoritePaths, setFavoritesRaw] = useAtom(
     jotaiPathStates.favoritePathsState
@@ -158,7 +159,6 @@ export function Favorites() {
 
   const handleFavoriteClick = useCallback(
     async (path: string) => {
-      // setSelectedPathinfo(undefined);
       selectFile(null);
       const treeStateReset = new CustomEvent("reset-tree-state");
       window.dispatchEvent(treeStateReset);
@@ -326,6 +326,37 @@ export function Favorites() {
         </div>
       </div>
       <nav className='space-y-1 p-4 overflow-auto flex-1'>
+        {isWindows && commonPaths.length > 0 && (
+          <div className='mb-4'>
+            <h3 className={`text-sm font-medium mb-2 ${theme.fg.med}`}>
+              Quick Access
+            </h3>
+            <div className='space-y-1'>
+              {commonPaths.map(({ label, path }) => (
+                <div
+                  key={path}
+                  className='relative'
+                  data-allow-context-menu='true'>
+                  <a
+                    href='#'
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleFavoriteClick(path);
+                    }}
+                    role='button'
+                    aria-label={`Open ${label}`}
+                    className={`flex items-center px-2 py-1.5 text-sm rounded-md 
+                    ${theme.bg.hi} ${theme.fg.med} ${theme.hover.lo} truncate`}>
+                    <FolderIcon
+                      className={`mr-2 h-4 w-4 flex-shrink-0 text-blue-500 dark:text-blue-400`}
+                    />
+                    <span className='truncate'>{label}</span>
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <FavoritesList
           paths={favoritePaths}
           onFavoriteClick={handleFavoriteClick}

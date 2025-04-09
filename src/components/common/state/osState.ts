@@ -1,5 +1,5 @@
 import { atom } from "jotai";
 
-export type OSType = "windows" | "macos" | "linux" | "unknown";
+export type OSType = "Windows" | "macOS" | "Linux";
 
-export const osTypeAtom = atom<OSType>("unknown");
+export const osTypeAtom = atom<OSType>("Windows");
