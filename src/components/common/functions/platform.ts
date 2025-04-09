@@ -5,11 +5,7 @@ import { useOSType } from "../hooks/useOSType";
 import { invoke } from "@tauri-apps/api";
 
 // Drive information type
-interface DriveInfo {
-  systemDrive: string;
-  userDrive: string;
-  drives: string[];
-}
+
 
 // Cache the platform value for synchronous operations
 let cachedPlatform: string | null = null;
@@ -277,33 +273,7 @@ export const platform = {
   },
 
   // Drive Information - This needs to be async due to Tauri invoke
-  getDriveInfo: async () => {
-    const platform = cachedPlatform || process.platform;
-    if (platform === "win32") {
-      try {
-        // Call Tauri command to get drive info
-        const driveInfo = await invoke<DriveInfo>("get_drive_info");
-        return {
-          systemDrive: driveInfo.systemDrive, // e.g. "C:"
-          userProfileDrive: driveInfo.userDrive, // might be different
-          availableDrives: driveInfo.drives, // all mounted drives
-        };
-      } catch (error) {
-        console.error("Failed to get drive info:", error);
-        // Fallback to environment variables
-        return {
-          systemDrive: process.env.SystemDrive || "C:",
-          userProfileDrive: process.env.SystemDrive || "C:",
-          availableDrives: [process.env.SystemDrive || "C:"],
-        };
-      }
-    }
-    return {
-      systemDrive: "/",
-      userProfileDrive: "/",
-      availableDrives: ["/"],
-    };
-  },
+
 };
 
 // Hook for reactive platform checks
