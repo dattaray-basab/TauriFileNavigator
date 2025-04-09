@@ -24,5 +24,5 @@
 // for providing inspiration for this project.
 
 pub mod filesystem_ops;
-pub mod platform_ops;
+pub mod platform;
 pub mod tree;
