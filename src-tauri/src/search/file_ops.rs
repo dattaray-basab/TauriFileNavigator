@@ -23,7 +23,7 @@
 // The author would also like to give special thanks to the contributors of https://github.com/Souvlaki42/file-manager.git
 // for providing inspiration for this project.
 
-use crate::platform;
+use crate::platforms;
 use crate::search::types::{SearchFileResult, SearchMatch};
 use regex::Regex;
 use std::fs;
@@ -58,7 +58,7 @@ pub fn search_file(path: &Path, regex: &Regex) -> Option<SearchFileResult> {
 
         if !file_matches.is_empty() {
             // Normalize the path for the current platform
-            let normalized_path = platform::normalize_path(&path.to_string_lossy());
+            let normalized_path = platforms::normalize_path(&path.to_string_lossy());
             return Some(SearchFileResult {
                 path: normalized_path,
                 matches: file_matches,

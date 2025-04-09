@@ -27,7 +27,7 @@ pub mod commands;
 pub mod filesys;
 pub mod models;
 pub mod notifications;
-pub mod platform;
+pub mod platforms;
 pub mod search;
 
 #[cfg(test)]

@@ -3,7 +3,7 @@ use tempfile::TempDir;
 use crate::notifications::tests::common::{setup_test_watcher, create_temp_dir, wait_for_event};
 use crate::notifications::watch_ops::WatchTarget;
 use std::time::Duration;
-use crate::platform;
+use crate::platforms;
 
 #[tokio::test]
 async fn watch_filesys_should_detect_folder_creation() {
@@ -16,7 +16,7 @@ async fn watch_filesys_should_detect_folder_creation() {
 
     // Set up watcher with FolderCreation target
     let (rx, mut watcher) = setup_test_watcher(
-        platform::normalize_path(&parent.to_string_lossy().to_string()),
+        platforms::normalize_path(&parent.to_string_lossy().to_string()),
         Some(WatchTarget::FolderCreation),
     ).await;
 
@@ -53,7 +53,7 @@ async fn watch_filesys_should_detect_folder_creation() {
 
     let has_creation = events.iter().any(|e| {
         e.event_type == "folder-created" &&
-        platform::normalize_path(&e.path).contains("test_folder")
+        platforms::normalize_path(&e.path).contains("test_folder")
     });
 
     assert!(has_creation, "Missing folder creation event");

@@ -23,7 +23,7 @@
 // The author would also like to give special thanks to the contributors of https://github.com/Souvlaki42/file-manager.git
 // for providing inspiration for this project.
 
-use crate::platform;
+use crate::platforms;
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
@@ -36,9 +36,9 @@ pub struct DriveInfo {
 #[tauri::command]
 pub fn get_drive_info() -> DriveInfo {
     DriveInfo {
-        system_drive: platform::get_system_drive(),
-        user_home: platform::get_user_home(),
-        available_drives: platform::get_available_drives(),
+        system_drive: platforms::get_system_drive(),
+        user_home: platforms::get_user_home(),
+        available_drives: platforms::get_available_drives(),
     }
 }
 

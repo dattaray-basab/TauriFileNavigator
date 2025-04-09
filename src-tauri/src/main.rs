@@ -30,7 +30,7 @@ mod commands;
 mod search;
 mod filesys;
 mod notifications;
-mod platform;
+mod platforms;
 
 use std::env;
 

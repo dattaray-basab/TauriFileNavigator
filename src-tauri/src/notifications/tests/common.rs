@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use std::sync::mpsc::{channel, Receiver};
 use std::time::Duration;
 use crate::notifications::watch_ops::WatchTarget;
-use crate::platform;
+use crate::platforms;
 
 #[derive(Debug)]
 pub struct FileSystemEvent {

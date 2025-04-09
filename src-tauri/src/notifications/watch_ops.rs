@@ -29,7 +29,7 @@ use std::sync::Mutex;
 use tauri::Runtime;
 use tauri::Manager;
 use serde::{Deserialize, Serialize};
-use crate::platform;
+use crate::platforms;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum WatchTarget {
@@ -53,14 +53,14 @@ pub async fn watch_filesys<R: Runtime>(
     let app_handle_clone = app_handle.clone();
 
     // Normalize the path for the current platform
-    let normalized_path = platform::normalize_path(&path);
+    let normalized_path = platforms::normalize_path(&path);
 
     let mut watcher: RecommendedWatcher = Watcher::new(
         move |res: Result<notify::Event, notify::Error>| {
             if let Ok(event) = res {
                 let emit_event = |event_type: &str, path: String| {
                     // Normalize the path for the current platform
-                    let normalized_path = platform::normalize_path(&path);
+                    let normalized_path = platforms::normalize_path(&path);
                     let _ = app_handle_clone.emit_all(
                         event_type,
                         serde_json::json!({ "path": normalized_path }),
@@ -72,7 +72,7 @@ pub async fn watch_filesys<R: Runtime>(
                         // For creation events, we need to check if the path exists and is a directory
                         let path = &event.paths[0];
                         if path.exists() {
-                            let normalized_path = platform::normalize_path(&path.to_string_lossy());
+                            let normalized_path = platforms::normalize_path(&path.to_string_lossy());
                             if path.is_dir() {
                                 if matches!(target, Some(WatchTarget::FolderCreation) | Some(WatchTarget::All) | None) {
                                     let _ = app_handle_clone.emit_all(

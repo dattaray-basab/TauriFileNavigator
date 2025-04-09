@@ -25,7 +25,7 @@
 use std::fs;
 use std::path::Path;
 use std::io::Write;
-use crate::platform;
+use crate::platforms;
 
 /// Creates a new file or folder at the specified path
 ///
@@ -46,8 +46,8 @@ pub async fn create_filesystem_item(
     // is_empty: Option<bool>,
 ) -> Result<(), String> {
     // Normalize paths for the current platform
-    let normalized_parent = platform::normalize_path(&parent_path);
-    let normalized_name = platform::normalize_path(&item_name);
+    let normalized_parent = platforms::normalize_path(&parent_path);
+    let normalized_name = platforms::normalize_path(&item_name);
     let path = Path::new(&normalized_parent).join(&normalized_name);
 
     // Check if the item already exists
@@ -88,7 +88,7 @@ pub async fn create_filesystem_item(
 #[tauri::command]
 pub async fn delete_file(file_path: String) -> Result<(), String> {
     // Normalize path for the current platform
-    let normalized_path = platform::normalize_path(&file_path);
+    let normalized_path = platforms::normalize_path(&file_path);
     let path = Path::new(&normalized_path);
     
     // Check if the path exists and is a file
@@ -119,7 +119,7 @@ pub async fn delete_file(file_path: String) -> Result<(), String> {
 #[tauri::command]
 pub async fn delete_folder(folder_path: String) -> Result<(), String> {
     // Normalize path for the current platform
-    let normalized_path = platform::normalize_path(&folder_path);
+    let normalized_path = platforms::normalize_path(&folder_path);
     let path = Path::new(&normalized_path);
     
     // Check if the path exists and is a directory
@@ -150,7 +150,7 @@ pub async fn delete_folder(folder_path: String) -> Result<(), String> {
 #[tauri::command]
 pub async fn read_file_content(file_path: String) -> Result<String, String> {
     // Normalize path for the current platform
-    let normalized_path = platform::normalize_path(&file_path);
+    let normalized_path = platforms::normalize_path(&file_path);
     let path = Path::new(&normalized_path);
     
     // Check if the path exists and is a file

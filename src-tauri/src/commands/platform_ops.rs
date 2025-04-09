@@ -21,7 +21,7 @@
 // SOFTWARE.
 
 #[cfg(not(target_os = "macos"))]
-use crate::platform;
+use crate::platforms;
 
 use dirs;
 use std::path::PathBuf;
@@ -100,7 +100,7 @@ pub async fn get_available_drives() -> Result<Vec<String>, String> {
         let mut paths = Vec::new();
         
         // Get all available local drives
-        let drives = platform::get_available_drives();
+        let drives = platforms::get_available_drives();
         
         // Add each drive with a label
         for drive in drives {
@@ -125,6 +125,6 @@ pub async fn get_available_drives() -> Result<Vec<String>, String> {
     #[cfg(not(any(target_os = "macos", target_os = "windows")))]
     {
         // For Linux and other platforms, use the platform-specific implementation
-        Ok(platform::get_available_drives())
+        Ok(platforms::get_available_drives())
     }
 } 

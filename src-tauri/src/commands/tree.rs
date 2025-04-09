@@ -23,7 +23,7 @@
 // The author would also like to give special thanks to the contributors of https://github.com/Souvlaki42/file-manager.git
 // for providing inspiration for this project.
 use crate::models::pathinfo::{NodeDetails, PathinfoKind};
-use crate::platform;
+use crate::platforms;
 use std::path::Path;
 use std::{fs, io::ErrorKind, time::UNIX_EPOCH};
 
@@ -33,7 +33,7 @@ pub fn get_tree_data(directory_path: String, recursive: bool) -> Vec<NodeDetails
     let mut stack: Vec<String> = Vec::new();
 
     // Normalize the input path for platform consistency
-    let normalized_path = platform::normalize_path(&directory_path);
+    let normalized_path = platforms::normalize_path(&directory_path);
     let path = Path::new(&normalized_path);
 
     // Early validation of the directory
@@ -47,7 +47,7 @@ pub fn get_tree_data(directory_path: String, recursive: bool) -> Vec<NodeDetails
         return pathinfo_list;
     }
 
-    let _directory_path_is_hidden = platform::is_hidden(path);
+    let _directory_path_is_hidden = platforms::is_hidden(path);
     stack.push(normalized_path);
 
     while let Some(current_path) = stack.pop() {
@@ -59,13 +59,13 @@ pub fn get_tree_data(directory_path: String, recursive: bool) -> Vec<NodeDetails
                         if let Ok(metadata) = entry.metadata() {
                             let name = entry.file_name().to_string_lossy().to_string();
                             // Ensure path is normalized for the current platform
-                            let path = platform::normalize_path(&path_buf.to_string_lossy());
+                            let path = platforms::normalize_path(&path_buf.to_string_lossy());
                             let kind = if metadata.is_dir() {
                                 PathinfoKind::Directory
                             } else {
                                 PathinfoKind::File
                             };
-                            let hidden = platform::is_hidden(&path_buf);
+                            let hidden = platforms::is_hidden(&path_buf);
 
                             // Get file metadata in a platform-independent way
                             let size = metadata.len();

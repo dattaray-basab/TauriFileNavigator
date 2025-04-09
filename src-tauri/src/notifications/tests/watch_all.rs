@@ -3,7 +3,7 @@ use tempfile::TempDir;
 use std::time::Duration;
 use crate::notifications::tests::common::{setup_test_watcher, create_temp_file, create_temp_dir, delete_temp_file, delete_temp_dir, modify_temp_file, rename_temp_file, rename_temp_dir, wait_for_event};
 use crate::notifications::watch_ops::WatchTarget;
-use crate::platform;
+use crate::platforms;
 
 #[tokio::test]
 async fn watch_filesys_should_detect_all_events() {
@@ -19,7 +19,7 @@ async fn watch_filesys_should_detect_all_events() {
 
     // Set up watcher with All target
     let (rx, mut watcher) = setup_test_watcher(
-        platform::normalize_path(&parent.to_string_lossy().to_string()),
+        platforms::normalize_path(&parent.to_string_lossy().to_string()),
         Some(WatchTarget::All),
     ).await;
 
@@ -72,21 +72,21 @@ async fn watch_filesys_should_detect_all_events() {
 
     // Helper function to check if an event exists
     let has_event = |event_type: &str, path: &std::path::Path| {
-        let normalized_path = platform::normalize_path(&path.to_string_lossy().to_string());
+        let normalized_path = platforms::normalize_path(&path.to_string_lossy().to_string());
         events.iter().any(|e| {
             e.event_type == event_type && 
-            platform::normalize_path(&e.path) == normalized_path
+            platforms::normalize_path(&e.path) == normalized_path
         })
     };
 
     // Helper function to check if a rename event exists
     let has_rename_event = |event_type: &str, old_path: &std::path::Path, new_path: &std::path::Path| {
-        let old_normalized = platform::normalize_path(&old_path.to_string_lossy().to_string());
-        let new_normalized = platform::normalize_path(&new_path.to_string_lossy().to_string());
+        let old_normalized = platforms::normalize_path(&old_path.to_string_lossy().to_string());
+        let new_normalized = platforms::normalize_path(&new_path.to_string_lossy().to_string());
         events.iter().any(|e| {
             e.event_type == event_type && 
-            (platform::normalize_path(&e.path) == old_normalized ||
-             platform::normalize_path(&e.path) == new_normalized)
+            (platforms::normalize_path(&e.path) == old_normalized ||
+             platforms::normalize_path(&e.path) == new_normalized)
         })
     };
 

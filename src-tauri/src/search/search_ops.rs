@@ -43,7 +43,7 @@ use crate::search::constants::{
     EARLY_RESULTS_INTERVAL,
 };
 use crate::search::process_directory_entry::process_directory_entry;
-use crate::platform;
+use crate::platforms;
 
 // Global cancellation channel
 static CANCEL_TX: Lazy<Mutex<Option<mpsc::Sender<()>>>> = Lazy::new(|| Mutex::new(None));
@@ -112,7 +112,7 @@ pub async fn search_folder(
     let regex = build_regex(&query, is_regex, is_case_sensitive, is_whole_word)?;
     
     // Normalize the search path for the current platform
-    let normalized_path = platform::normalize_path(&path);
+    let normalized_path = platforms::normalize_path(&path);
     let mut dirs_to_search = vec![PathBuf::from(&normalized_path)];
     let mut curtailed = false;
 

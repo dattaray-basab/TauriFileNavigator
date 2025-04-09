@@ -3,7 +3,7 @@ use tempfile::TempDir;
 use std::time::Duration;
 use crate::notifications::tests::common::{setup_test_watcher, create_temp_dir, wait_for_event};
 use crate::notifications::watch_ops::WatchTarget;
-use crate::platform;
+use crate::platforms;
 
 #[tokio::test]
 async fn watch_filesys_should_detect_folder_deletion() {
