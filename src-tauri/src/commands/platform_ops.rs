@@ -23,30 +23,47 @@
 // The author would also like to give special thanks to the contributors of https://github.com/Souvlaki42/file-manager.git
 // for providing inspiration for this project.
 
-#[cfg(target_os = "macos")]
-mod macos;
-#[cfg(not(target_os = "macos"))]
-mod non_macos;
+mod platform {
+    #[cfg(target_os = "macos")]
+    mod macos;
+    #[cfg(target_os = "windows")]
+    mod windows;
+    #[cfg(target_os = "linux")]
+    mod linux;
 
-#[cfg(target_os = "macos")]
-use macos::{get_available_drives as get_macos_drives, get_common_paths as get_macos_paths};
-#[cfg(not(target_os = "macos"))]
-use non_macos::{get_available_drives as get_non_macos_drives, get_common_paths as get_non_macos_paths};
+    #[cfg(target_os = "macos")]
+    pub use macos::{get_available_drives as get_macos_drives, get_common_paths as get_macos_paths};
+    #[cfg(target_os = "windows")]
+    pub use windows::{get_available_drives as get_windows_drives, get_common_paths as get_windows_paths};
+    #[cfg(target_os = "linux")]
+    pub use linux::{get_available_drives as get_linux_drives, get_common_paths as get_linux_paths};
+}
 
+use platform::*;
+
+/// Get a list of available drives on the system.
+/// On macOS, this returns a list of mounted volumes and common directories.
+/// On Windows, this returns a list of available drive letters.
+/// On Linux, this returns a list of mounted filesystems.
 #[tauri::command]
 pub async fn get_available_drives() -> Result<Vec<String>, String> {
     #[cfg(target_os = "macos")]
     {
         get_macos_drives().await
     }
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(target_os = "windows")]
     {
-        get_non_macos_drives().await
+        get_windows_drives().await
+    }
+    #[cfg(target_os = "linux")]
+    {
+        get_linux_drives().await
     }
 }
 
-/// This command is kept for future use in the frontend.
-/// It provides a platform-independent way to get common system paths.
+/// Get a list of common system paths.
+/// This includes user directories (Desktop, Documents, etc.) and system directories.
+/// The paths returned are specific to each operating system.
 #[tauri::command]
 #[allow(dead_code)]
 pub async fn get_common_paths() -> Result<Vec<String>, String> {
@@ -54,8 +71,12 @@ pub async fn get_common_paths() -> Result<Vec<String>, String> {
     {
         get_macos_paths().await
     }
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(target_os = "windows")]
     {
-        get_non_macos_paths().await
+        get_windows_paths().await
+    }
+    #[cfg(target_os = "linux")]
+    {
+        get_linux_paths().await
     }
 } 
