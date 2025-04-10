@@ -303,28 +303,39 @@ export function Favorites() {
       className={`h-full flex flex-col ${theme.bg.hi}`}
       role='navigation'
       aria-label='Favorites'>
+      {/* Header - just title now */}
       <div
-        className={`${theme.highlight.badge} py-2 flex items-center justify-between sticky top-0 z-10 px-4`}
+        className={`${theme.highlight.badge} py-2 px-4`}
         role='heading'
         aria-level={2}>
         <h2 className={`text-sm font-semibold`}>Favorites</h2>
-        <div className='flex space-x-2'>
-          <button
-            onClick={handleAddDefaultFavPaths}
-            className={`p-1 rounded-md ${theme.hover.lo}`}
-            aria-label='Add default directories'
-            title='Add default directories to favorites'>
-            <HardDrive className='w-4 h-4' />
-          </button>
-          <button
-            onClick={handleResetFavorites}
-            className={`p-1 rounded-md ${theme.hover.lo}`}
-            aria-label='Reset favorites'
-            title='Reset favorites to default directories'>
-            <RefreshCw className='w-4 h-4' />
-          </button>
-        </div>
       </div>
+
+      {/* New non-scrollable buttons section */}
+      <div className='px-4 py-2 flex space-x-2'>
+        <button
+          onClick={handleAddDefaultFavPaths}
+          className={`flex items-center text-xs px-2 py-1 rounded min-w-[80px] justify-center
+            border border-blue-400 hover:border-2 hover:border-blue-500 hover:font-semibold
+            focus:ring focus:ring-blue-300 transition-all duration-200
+            ${theme.bg.lo} ${theme.fg.hi} hover:${theme.bg.med}`}
+          aria-label='Add default directories'
+          title='Add default directories to favorites'>
+          Add Defaults
+        </button>
+        <button
+          onClick={handleResetFavorites}
+          className={`flex items-center text-xs px-2 py-1 rounded min-w-[80px] justify-center
+            border border-blue-400 hover:border-2 hover:border-blue-500 hover:font-semibold
+            focus:ring focus:ring-blue-300 transition-all duration-200
+            ${theme.bg.lo} ${theme.fg.hi} hover:${theme.bg.med}`}
+          aria-label='Reset favorites'
+          title='Reset favorites to default directories'>
+          Reset
+        </button>
+      </div>
+
+      {/* Navigation Section - remains scrollable */}
       <nav className='space-y-1 p-4 overflow-auto flex-1'>
         <FavoritesList
           paths={favoritePaths}
