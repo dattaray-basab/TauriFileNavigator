@@ -44,15 +44,15 @@ pub fn is_hidden(path: &Path) -> bool {
     }
 }
 
-pub fn get_system_drive() -> String {
-    env::var("SystemDrive").unwrap_or_else(|_| String::from("C:"))
-}
+// pub fn get_system_drive() -> String {
+//     env::var("SystemDrive").unwrap_or_else(|_| String::from("C:"))
+// }
 
-pub fn get_user_home() -> Option<String> {
-    env::var("USERPROFILE").ok()
-}
+// pub fn get_user_home() -> Option<String> {
+//     env::var("USERPROFILE").ok()
+// }
 
-pub fn normalize_path(path: &str) -> String {
-    // Replace Unix-style separators with Windows ones
-    path.replace('/', "\\")
-}
+// pub fn normalize_path(path: &str) -> String {
+//     // Replace Unix-style separators with Windows ones
+//     path.replace('/', "\\")
+// }

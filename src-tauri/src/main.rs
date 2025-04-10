@@ -28,7 +28,7 @@
 mod models;
 mod commands;
 mod search;
-mod filesys;
+// mod filesys;
 mod notifications;
 mod platforms;
 
@@ -65,7 +65,6 @@ async fn main() {
             commands::filesystem_ops::delete_folder,
             commands::filesystem_ops::read_file_content,
             notifications::watch_ops::watch_filesys,
-            filesys::drive_ops::get_drive_info,
             commands::platform_ops::get_available_drives,
             get_os_type,
         ])

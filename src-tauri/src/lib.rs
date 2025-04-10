@@ -24,7 +24,6 @@
 // for providing inspiration for this project.
 
 pub mod commands;
-pub mod filesys;
 pub mod models;
 pub mod notifications;
 pub mod platforms;
