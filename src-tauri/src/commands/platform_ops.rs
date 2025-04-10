@@ -27,7 +27,7 @@ use dirs;
 use std::path::PathBuf;
 
 #[tauri::command]
-pub async fn get_available_drives() -> Result<Vec<String>, String> {
+pub async fn get_default_paths() -> Result<Vec<String>, String> {
     #[cfg(target_os = "macos")]
     {
         let mut paths = Vec::new();
@@ -100,7 +100,7 @@ pub async fn get_available_drives() -> Result<Vec<String>, String> {
         let mut paths = Vec::new();
         
         // Get all available local drives
-        let drives = platforms::get_available_drives();
+        let drives = platforms::get_default_paths();
         
         // Add each drive with a label
         for drive in drives {
@@ -125,6 +125,6 @@ pub async fn get_available_drives() -> Result<Vec<String>, String> {
     #[cfg(not(any(target_os = "macos", target_os = "windows")))]
     {
         // For Linux and other platforms, use the platform-specific implementation
-        Ok(platforms::get_available_drives())
+        Ok(platforms::get_default_paths())
     }
 } 

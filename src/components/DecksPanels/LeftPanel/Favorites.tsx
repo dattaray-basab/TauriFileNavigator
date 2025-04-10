@@ -209,9 +209,9 @@ export function Favorites() {
     show({ event: e });
   };
 
-  const handleAddDefaultDrives = useCallback(async () => {
+  const handleAddDefaultFavPaths = useCallback(async () => {
     try {
-      const drives = await invoke<string[]>("get_available_drives");
+      const drives = await invoke<string[]>("get_default_paths");
       // Add new drives while preserving existing favorites and maintaining sort order
       setFavoritePaths((currentPaths) => {
         const newPaths = drives.filter((drive) => {
@@ -232,12 +232,12 @@ export function Favorites() {
   const handleResetFavorites = useCallback(async () => {
     try {
       // Get the default drives
-      const defaultDrives = await invoke<string[]>("get_available_drives");
+      const defaultFavPaths = await invoke<string[]>("get_default_paths");
 
       // Replace all favorites with the defaults
-      setFavoritePaths(defaultDrives);
+      setFavoritePaths(defaultFavPaths);
 
-      console.log("[Favorites] Reset favorites to defaults:", defaultDrives);
+      console.log("[Favorites] Reset favorites to defaults:", defaultFavPaths);
     } catch (error) {
       console.error("[Favorites] Error resetting favorites:", error);
     }
@@ -246,9 +246,9 @@ export function Favorites() {
   // Load drives on mount if no favorites exist
   useEffect(() => {
     if (favoritePaths.length === 0) {
-      handleAddDefaultDrives();
+      handleAddDefaultFavPaths();
     }
-  }, [favoritePaths.length, handleAddDefaultDrives]);
+  }, [favoritePaths.length, handleAddDefaultFavPaths]);
 
   // Memoize the nav content
   const FavoritesList = memo<FavoritesListProps>(
@@ -310,7 +310,7 @@ export function Favorites() {
         <h2 className={`text-sm font-semibold`}>Favorites</h2>
         <div className='flex space-x-2'>
           <button
-            onClick={handleAddDefaultDrives}
+            onClick={handleAddDefaultFavPaths}
             className={`p-1 rounded-md ${theme.hover.lo}`}
             aria-label='Add default directories'
             title='Add default directories to favorites'>
