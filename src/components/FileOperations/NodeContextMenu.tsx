@@ -141,7 +141,6 @@ export const NodeContextMenu = ({
       await onRefreshSubtree(1);
       // setRefreshed({ path: node.path, timestamp: Date.now() });
       setShowDeleteConfirmation(false);
-      toast.success("Item deleted successfully");
     } catch (error) {
       console.error("Error deleting item:", error);
       toast.error(
