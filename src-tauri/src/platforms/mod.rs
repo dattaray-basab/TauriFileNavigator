@@ -25,6 +25,9 @@
 
 use std::path::Path;
 
+#[cfg(target_os = "macos")]
+pub mod mac;
+
 /// Platform-independent way to check if a path is hidden
 pub fn is_hidden(path: &Path) -> bool {
     path.file_name()
@@ -53,4 +56,3 @@ pub fn normalize_path(path: &str) -> String {
         path.replace('\\', "/")
     }
 }
-

@@ -1,0 +1,3 @@
+Commit message: 'move file - under platforms'
+Staging changes...
+Committing changes with message: 'move file - under platforms'

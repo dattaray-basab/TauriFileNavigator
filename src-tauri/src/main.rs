@@ -65,7 +65,7 @@ async fn main() {
             commands::filesystem_ops::delete_folder,
             commands::filesystem_ops::read_file_content,
             notifications::watch_ops::watch_filesys,
-            commands::platform_ops::get_default_paths,
+            platforms::mac::get_default_paths,
             get_os_type,
         ])
         .run(tauri::generate_context!())
