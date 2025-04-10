@@ -321,7 +321,7 @@ export function Favorites() {
             ${theme.bg.lo} ${theme.fg.hi} hover:${theme.bg.med}`}
           aria-label='Include favorite defaults'
           title='Include favorite defaults'>
-          Include Favorites
+          Include all Defaults
         </button>
         <button
           onClick={handleResetFavorites}
