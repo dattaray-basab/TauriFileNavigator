@@ -25,7 +25,7 @@
  * for providing inspiration for this project.
  */
 
-import { FolderIcon, HardDrive, RefreshCw } from "lucide-react";
+import { FolderIcon} from "lucide-react";
 import { useTheme } from "@/components/common";
 import {
   jotaiPathStates,
