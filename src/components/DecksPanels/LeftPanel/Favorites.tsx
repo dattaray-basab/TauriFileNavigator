@@ -315,23 +315,23 @@ export function Favorites() {
       <div className='px-4 py-2 flex space-x-2'>
         <button
           onClick={handleAddDefaultFavPaths}
-          className={`flex items-center text-xs px-2 py-1 rounded min-w-[160px] justify-center
+          className={`flex items-center text-xs px-2 py-1 rounded min-w-[120px] justify-center
             border border-blue-400 hover:border-2 hover:border-blue-500 hover:font-semibold
             focus:ring focus:ring-blue-300 transition-all duration-200
             ${theme.bg.lo} ${theme.fg.hi} hover:${theme.bg.med}`}
           aria-label='Include favorite defaults'
           title='Include favorite defaults'>
-          Include Favorite Defaults
+          Include Favorites
         </button>
         <button
           onClick={handleResetFavorites}
-          className={`flex items-center text-xs px-2 py-1 rounded min-w-[160px] justify-center
+          className={`flex items-center text-xs px-2 py-1 rounded min-w-[120px] justify-center
             border border-blue-400 hover:border-2 hover:border-blue-500 hover:font-semibold
             focus:ring focus:ring-blue-300 transition-all duration-200
             ${theme.bg.lo} ${theme.fg.hi} hover:${theme.bg.med}`}
           aria-label='Reset favorites to defaults'
           title='Reset favorites to defaults'>
-          Reset Favorites to Defaults
+          Reset Favorites
         </button>
       </div>
 
