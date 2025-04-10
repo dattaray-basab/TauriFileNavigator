@@ -2,8 +2,11 @@ import { useEffect } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/tauri";
 import { treeActions } from "../common/globalStateMgt/valtioTreeStates";
-import { toPlatformPath } from "@/components/common/functions/platform";
-import { BACK_SLASH, FORWARD_SLASH } from "@/components/common/constants/filesys";
+import { toPlatformPath } from "@/components/common/functions/platform_frontend";
+import {
+  BACK_SLASH,
+  FORWARD_SLASH,
+} from "@/components/common/constants/filesys";
 
 interface FileSystemEvent {
   payload: {

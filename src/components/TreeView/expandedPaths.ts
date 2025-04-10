@@ -25,7 +25,7 @@
  * for providing inspiration for this project.
  */
 import { notifyListeners } from "./listeners";
-import { toPlatformPath } from "@/components/common/functions/platform";
+import { toPlatformPath } from "@/components/common/functions/platform_frontend";
 import { FORWARD_SLASH } from "@/components/common/constants/filesys";
 
 // Set to store expanded node paths

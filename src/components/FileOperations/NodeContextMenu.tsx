@@ -149,10 +149,6 @@ export const NodeContextMenu = ({
     }
   };
 
-  // useEffect(() => {
-  //   setRefreshed({ path: node.path, timestamp: Date.now() });
-  // }, [node.path]);
-
   return (
     <>
       <Menu id={node.path}>

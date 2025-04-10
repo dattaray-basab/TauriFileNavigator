@@ -37,7 +37,7 @@ import {
 } from "@/components/common/globalStateMgt/valtioTreeStates";
 import { NodeDetails } from "@/components/common/types/types";
 import { NODE_KINDS } from "@/components/common/types/constants";
-import { toPlatformPath } from "@/components/common/functions/platform";
+import { toPlatformPath } from "@/components/common/functions/platform_frontend";
 import { FORWARD_SLASH } from "@/components/common/constants/filesys";
 
 const ERRORS = {

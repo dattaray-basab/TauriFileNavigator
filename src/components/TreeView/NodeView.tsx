@@ -35,7 +35,7 @@ import { useHighlighting } from "@/components/Search";
 import { useRef } from "react";
 import { NODE_KINDS } from "@/components/common/types/constants";
 import { NodeContextMenu } from "../FileOperations/NodeContextMenu";
-import { toPlatformPath } from "@/components/common/functions/platform";
+import { toPlatformPath } from "@/components/common/functions/platform_frontend";
 // import { deleteFileSystemItem } from "@/components/FileOperations/fileOperations";
 // import { toast } from "react-hot-toast";
 import {

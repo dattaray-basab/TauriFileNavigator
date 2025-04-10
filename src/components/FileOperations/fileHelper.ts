@@ -24,12 +24,17 @@
  * The author would like to give special thanks to the contributors of https://github.com/Souvlaki42/file-manager.git
  * for providing inspiration for this project.
  */
-import { toPlatformPath } from "@/components/common/functions/platform";
-import { BACK_SLASH, FORWARD_SLASH } from "@/components/common/constants/filesys";
+import { toPlatformPath } from "@/components/common/functions/platform_frontend";
+import {
+  BACK_SLASH,
+  FORWARD_SLASH,
+} from "@/components/common/constants/filesys";
 
 export const getParentPath = (path: string) => {
   // Convert normalized path to platform-specific format before splitting
   const platformPath = toPlatformPath(path);
-  const separator = platformPath.includes(BACK_SLASH) ? BACK_SLASH : FORWARD_SLASH;
+  const separator = platformPath.includes(BACK_SLASH)
+    ? BACK_SLASH
+    : FORWARD_SLASH;
   return platformPath.split(separator).slice(0, -1).join(separator);
 };

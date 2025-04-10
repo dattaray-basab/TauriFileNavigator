@@ -25,7 +25,7 @@
  * for providing inspiration for this project.
  */
 import { invoke } from "@tauri-apps/api/tauri";
-import { toPlatformPath } from "@/components/common/functions/platform";
+import { toPlatformPath } from "@/components/common/functions/platform_frontend";
 
 /**
  * Deletes a file at the specified path

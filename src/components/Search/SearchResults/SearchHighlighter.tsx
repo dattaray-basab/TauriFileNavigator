@@ -27,7 +27,7 @@
 import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { searchState, type HighlightedPath } from "../common/stateMgt";
-import { toPlatformPath } from "@/components/common/functions/platform";
+import { toPlatformPath } from "@/components/common/functions/platform_frontend";
 import { FORWARD_SLASH } from "@/components/common/constants/filesys";
 import { SearchFileResult } from "../common/stateMgt/types";
 

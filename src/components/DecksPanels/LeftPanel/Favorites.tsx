@@ -42,7 +42,7 @@ import { usePreventDefaultContextMenu } from "@/components/common/hooks/usePreve
 import { treeActions } from "../../common/globalStateMgt/valtioTreeStates";
 import { useSnapshot } from "valtio";
 import { valtioTreeStates } from "../../common/globalStateMgt/valtioTreeStates";
-import { toPlatformPath } from "@/components/common/functions/platform";
+import { toPlatformPath } from "@/components/common/functions/platform_frontend";
 import { FORWARD_SLASH } from "@/components/common/constants/filesys";
 
 type FavoritesListProps = {
@@ -211,27 +211,27 @@ export function Favorites() {
 
   const handleAddDefaultFavPaths = useCallback(async () => {
     try {
-      const drives = await invoke<string[]>("get_default_paths");
-      // Add new drives while preserving existing favorites and maintaining sort order
+      const favPaths = await invoke<string[]>("get_default_paths");
+      // Add new favPaths while preserving existing favorites and maintaining sort order
       setFavoritePaths((currentPaths) => {
-        const newPaths = drives.filter((drive) => {
-          const [drivePath] = drive.split("|");
+        const newPaths = favPaths.filter((favPath) => {
+          const [favPathPath] = favPath.split("|");
           return !currentPaths.some((currentPath) => {
             const [currentPathActual] = currentPath.split("|");
-            return currentPathActual === drivePath;
+            return currentPathActual === favPathPath;
           });
         });
         return maintainSortedPaths([...currentPaths, ...newPaths]);
       });
-      console.log("[Favorites] Added system drives:", drives);
+      console.log("[Favorites] Added system favPaths:", favPaths);
     } catch (error) {
-      console.error("[Favorites] Error adding system drives:", error);
+      console.error("[Favorites] Error adding system favPaths:", error);
     }
   }, [setFavoritePaths]);
 
   const handleResetFavorites = useCallback(async () => {
     try {
-      // Get the default drives
+      // Get the default favPaths
       const defaultFavPaths = await invoke<string[]>("get_default_paths");
 
       // Replace all favorites with the defaults
@@ -243,7 +243,7 @@ export function Favorites() {
     }
   }, [setFavoritePaths]);
 
-  // Load drives on mount if no favorites exist
+  // Load favPaths on mount if no favorites exist
   useEffect(() => {
     if (favoritePaths.length === 0) {
       handleAddDefaultFavPaths();

@@ -31,7 +31,7 @@ import { searchState } from "../common/stateMgt";
 import path from "path-browserify";
 import { useEffect, useState } from "react";
 import { SearchHighlighter } from "./SearchHighlighter";
-import { toPlatformPath } from "@/components/common/functions/platform";
+import { toPlatformPath } from "@/components/common/functions/platform_frontend";
 import { FORWARD_SLASH } from "@/components/common/constants/filesys";
 
 interface SearchResultsProps {
