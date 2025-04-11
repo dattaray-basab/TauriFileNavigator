@@ -23,57 +23,39 @@
 // The author would also like to give special thanks to the contributors of https://github.com/Souvlaki42/file-manager.git
 // for providing inspiration for this project.
 
-use std::path::Path;
+use std::path::PathBuf;
+use windows::Win32::Storage::FileSystem::GetLogicalDriveStringsW;
+use windows::core::PCWSTR;
 
-#[cfg(target_os = "macos")]
-pub mod mac;
-
-#[cfg(target_os = "windows")]
-pub mod windows;
-
-/// Platform-independent way to check if a path is hidden
-pub fn is_hidden(path: &Path) -> bool {
-    path.file_name()
-        .and_then(|name| name.to_str())
-        .map(|name| name.starts_with('.'))
-        .unwrap_or(false)
-}
-
-/// Normalize a path to the current platform's format
-pub fn normalize_path(path: &str) -> String {
-    #[cfg(target_os = "windows")]
-    {
-        // On Windows, we use backslashes
-        path.replace('/', "\\")
-    }
-
-    #[cfg(target_os = "macos")]
-    {
-        // On macOS, we use forward slashes and remove /private prefix
-        path.replace('\\', "/").replace("/private/", "/")
-    }
-
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
-    {
-        // On other Unix systems, we use forward slashes
-        path.replace('\\', "/")
-    }
-}
-
-#[tauri::command]
 pub async fn get_default_paths() -> Result<Vec<String>, String> {
-    #[cfg(target_os = "macos")]
-    {
-        mac::get_default_paths().await
+    let mut paths = Vec::new();
+    
+    // Get all available drives using Windows API
+    let mut buffer = [0u16; 1024];
+    let mut length = 0;
+    unsafe {
+        GetLogicalDriveStringsW(&mut buffer, &mut length);
     }
-
-    #[cfg(target_os = "windows")]
-    {
-        windows::get_default_paths().await
+    
+    // Convert the buffer to a string and split by null characters
+    let drives = String::from_utf16_lossy(&buffer[..length as usize]);
+    
+    // Process each drive
+    for drive in drives.split('\0').filter(|s| !s.is_empty()) {
+        // Skip network drives (starting with \\)
+        if drive.starts_with("\\\\") {
+            continue;
+        }
+        
+        // Local drive - use the drive letter as the label
+        let drive_letter = drive.chars().next().unwrap_or('?');
+        let drive_name = format!("{}|Drive {}:", drive, drive_letter);
+        
+        paths.push(drive_name);
     }
-
-    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-    {
-        Ok(Vec::new())
-    }
-}
+    
+    // Sort drives alphabetically
+    paths.sort();
+    
+    Ok(paths)
+} 

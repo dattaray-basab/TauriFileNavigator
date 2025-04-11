@@ -26,7 +26,6 @@ use crate::platforms;
 use dirs;
 use std::path::PathBuf;
 
-#[tauri::command]
 pub async fn get_default_paths() -> Result<Vec<String>, String> {
     #[cfg(target_os = "macos")]
     {
