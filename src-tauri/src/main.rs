@@ -34,18 +34,6 @@ mod platforms;
 
 use std::env;
 
-#[tauri::command]
-fn get_os_type() -> String {
-    #[cfg(target_os = "windows")]
-    return "windows".to_string();
-    #[cfg(target_os = "macos")]
-    return "macos".to_string();
-    #[cfg(target_os = "linux")]
-    return "linux".to_string();
-    #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
-    return "unknown".to_string();
-}
-
 #[tokio::main]
 async fn main() {
     // Set default CKS_ROOT_DIR if not set
@@ -66,7 +54,7 @@ async fn main() {
             commands::filesystem_ops::read_file_content,
             notifications::watch_ops::watch_filesys,
             platforms::get_default_paths,
-            get_os_type,
+            platforms::mix::get_os_type,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

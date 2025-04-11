@@ -31,6 +31,8 @@ pub mod mac;
 #[cfg(target_os = "windows")]
 pub mod windows;
 
+pub mod mix;
+
 /// Platform-independent way to check if a path is hidden
 pub fn is_hidden(path: &Path) -> bool {
     path.file_name()
