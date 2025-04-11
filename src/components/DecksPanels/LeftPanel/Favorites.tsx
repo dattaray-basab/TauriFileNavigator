@@ -25,7 +25,7 @@
  * for providing inspiration for this project.
  */
 
-import { FolderIcon} from "lucide-react";
+import { FolderIcon } from "lucide-react";
 import { useTheme } from "@/components/common";
 import {
   jotaiPathStates,
@@ -279,6 +279,7 @@ export function Favorites() {
                   }}
                   role='button'
                   aria-label={`Open favorite folder ${displayName}`}
+                  title={path}
                   className={`flex items-center px-2 py-1.5 text-sm rounded-md 
                   ${theme.bg.hi} ${theme.fg.med} ${theme.hover.lo} truncate
                   ${isSelected ? "font-bold" : "font-normal"}
