@@ -75,8 +75,3 @@ pub async fn get_default_paths() -> Result<Vec<String>, String> {
     Ok(paths)
 }
 
-#[cfg(not(any(target_os = "macos", target_os = "windows")))]
-pub async fn get_default_paths() -> Result<Vec<String>, String> {
-    // For Linux and other platforms, use the platform-specific implementation
-    platforms::get_default_paths().await
-} 
