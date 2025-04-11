@@ -20,5 +20,5 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-pub mod windows;
-pub use windows::get_default_paths;
+pub mod get_default_paths;
+pub use get_default_paths::get_default_paths;

@@ -20,58 +20,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-use std::fs;
-use dirs;
+use winapi::um::fileapi::GetLogicalDrives;
+use winapi::um::winbase::GetDriveTypeW;
+use std::os::windows::ffi::OsStringExt;
+use std::path::PathBuf;
 
-#[cfg(target_os = "macos")]
+#[cfg(target_os = "windows")]
 pub async fn get_default_paths() -> Result<Vec<String>, String> {
     let mut paths = Vec::new();
     
-    // Get user's home directory
-    if let Some(home) = dirs::home_dir() {
-        paths.push(home.to_string_lossy().into_owned());
-        
-        // Add common user directories
-        let user_dirs = [
-            "Documents",
-            "Downloads",
-            "Desktop",
-            "Pictures",
-            "Music",
-            "Movies",
-            "Applications"
-        ];
-        
-        for dir in user_dirs.iter() {
-            let path = home.join(dir);
-            if path.exists() {
-                paths.push(path.to_string_lossy().into_owned());
+    // Get all available drives
+    let drives = unsafe { GetLogicalDrives() };
+    for i in 0..26 {
+        if (drives & (1 << i)) != 0 {
+            let drive_letter = (b'A' + i) as char;
+            let drive_path = format!("{}:\\", drive_letter);
+            let drive_path_wide: Vec<u16> = drive_path.encode_utf16().collect();
+            
+            // Check if it's a local drive (skip network drives)
+            let drive_type = unsafe { GetDriveTypeW(drive_path_wide.as_ptr()) };
+            if drive_type == winapi::um::winbase::DRIVE_FIXED {
+                paths.push(drive_path);
             }
         }
     }
     
-    // Add system volumes
-    if let Ok(volumes) = fs::read_dir("/Volumes") {
-        for volume in volumes.filter_map(Result::ok) {
-            let path = volume.path();
-            if path.is_dir() {
-                paths.push(path.to_string_lossy().into_owned());
-            }
-        }
-    }
-    
-    // Sort paths and ensure home directory is first
+    // Sort drives alphabetically
     paths.sort();
-    if let Some(home) = dirs::home_dir() {
-        let home_str = home.to_string_lossy().into_owned();
-        if let Some(pos) = paths.iter().position(|x| x == &home_str) {
-            if pos != 0 {
-                paths.remove(pos);
-                paths.insert(0, home_str);
-            }
-        }
-    }
     
     Ok(paths)
-}
-
+} 

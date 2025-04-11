@@ -19,44 +19,58 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-//
-// The author would also like to give special thanks to the contributors of https://github.com/Souvlaki42/file-manager.git
-// for providing inspiration for this project.
 
-use std::path::PathBuf;
-use windows::Win32::Storage::FileSystem::GetLogicalDriveStringsW;
-use windows::core::PCWSTR;
+use std::fs;
+use dirs;
 
-#[cfg(target_os = "windows")]
+#[cfg(target_os = "macos")]
 pub async fn get_default_paths() -> Result<Vec<String>, String> {
     let mut paths = Vec::new();
     
-    // Get all available drives using Windows API
-    let mut buffer = [0u16; 1024];
-    let mut length = 0;
-    unsafe {
-        GetLogicalDriveStringsW(&mut buffer, &mut length);
-    }
-    
-    // Convert the buffer to a string and split by null characters
-    let drives = String::from_utf16_lossy(&buffer[..length as usize]);
-    
-    // Process each drive
-    for drive in drives.split('\0').filter(|s| !s.is_empty()) {
-        // Skip network drives (starting with \\)
-        if drive.starts_with("\\\\") {
-            continue;
+    // Get user's home directory
+    if let Some(home) = dirs::home_dir() {
+        paths.push(home.to_string_lossy().into_owned());
+        
+        // Add common user directories
+        let user_dirs = [
+            "Documents",
+            "Downloads",
+            "Desktop",
+            "Pictures",
+            "Music",
+            "Movies",
+            "Applications"
+        ];
+        
+        for dir in user_dirs.iter() {
+            let path = home.join(dir);
+            if path.exists() {
+                paths.push(path.to_string_lossy().into_owned());
+            }
         }
-        
-        // Local drive - use the drive letter as the label
-        let drive_letter = drive.chars().next().unwrap_or('?');
-        let drive_name = format!("{}|Drive {}:", drive, drive_letter);
-        
-        paths.push(drive_name);
     }
     
-    // Sort drives alphabetically
+    // Add system volumes
+    if let Ok(volumes) = fs::read_dir("/Volumes") {
+        for volume in volumes.filter_map(Result::ok) {
+            let path = volume.path();
+            if path.is_dir() {
+                paths.push(path.to_string_lossy().into_owned());
+            }
+        }
+    }
+    
+    // Sort paths and ensure home directory is first
     paths.sort();
+    if let Some(home) = dirs::home_dir() {
+        let home_str = home.to_string_lossy().into_owned();
+        if let Some(pos) = paths.iter().position(|x| x == &home_str) {
+            if pos != 0 {
+                paths.remove(pos);
+                paths.insert(0, home_str);
+            }
+        }
+    }
     
     Ok(paths)
 } 
