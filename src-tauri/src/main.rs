@@ -48,13 +48,13 @@ async fn main() {
             commands::tree::get_tree_data,
             search::search_ops::search_folder,
             search::search_ops::cancel_search,
-            commands::filesystem_ops::create_filesystem_item,
-            commands::filesystem_ops::delete_file,
-            commands::filesystem_ops::delete_folder,
             commands::filesystem_ops::read_file_content,
             notifications::watch_ops::watch_filesys,
             platforms::get_default_paths,
             platforms::mix::get_os_type,
+            platforms::create_filesystem_item,
+            platforms::delete_file,
+            platforms::delete_folder,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

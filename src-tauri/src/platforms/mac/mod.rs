@@ -22,3 +22,6 @@
 
 pub mod get_default_paths;
 pub use get_default_paths::get_default_paths;
+
+pub mod filesystem_ops;
+pub use filesystem_ops::{create_filesystem_item, delete_file, delete_folder};

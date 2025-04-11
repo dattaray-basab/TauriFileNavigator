@@ -34,6 +34,13 @@ pub mod windows;
 
 pub mod mix;
 
+#[cfg(target_os = "macos")]
+pub use mac::{
+    create_filesystem_item as mac_create_item,
+    delete_file as mac_delete_file,
+    delete_folder as mac_delete_folder,
+};
+
 /// Platform-independent way to check if a path is hidden
 pub fn is_hidden(path: &Path) -> bool {
     path.file_name()
@@ -78,5 +85,45 @@ pub async fn get_default_paths() -> Result<Vec<String>, String> {
     #[cfg(not(any(target_os = "macos", target_os = "windows")))]
     {
         Ok(Vec::new())
+    }
+}
+
+#[tauri::command]
+pub async fn create_filesystem_item(parent_path: String, item_name: String, item_type: String) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        let is_file = item_type == "File";
+        mac_create_item(parent_path, item_name, is_file).await
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        Err("Operation not supported on this platform".to_string())
+    }
+}
+
+#[tauri::command]
+pub async fn delete_file(file_path: String) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        mac_delete_file(file_path).await
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        Err("Operation not supported on this platform".to_string())
+    }
+}
+
+#[tauri::command]
+pub async fn delete_folder(folder_path: String) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        mac_delete_folder(folder_path).await
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        Err("Operation not supported on this platform".to_string())
     }
 }
