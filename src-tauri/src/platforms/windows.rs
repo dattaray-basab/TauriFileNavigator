@@ -27,6 +27,7 @@ use std::path::PathBuf;
 use windows::Win32::Storage::FileSystem::GetLogicalDriveStringsW;
 use windows::core::PCWSTR;
 
+#[cfg(target_os = "windows")]
 pub async fn get_default_paths() -> Result<Vec<String>, String> {
     let mut paths = Vec::new();
     

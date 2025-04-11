@@ -33,15 +33,4 @@ pub fn is_hidden(path: &Path) -> bool {
         .unwrap_or(false)
 }
 
-// pub fn get_system_drive() -> String {
-//     String::from("/")
-// }
 
-// pub fn get_user_home() -> Option<String> {
-//     env::var("HOME").ok()
-// }
-
-// pub fn normalize_path(path: &str) -> String {
-//     // Replace Windows-style separators with Unix ones
-//     path.replace('\\', "/")
-// }
