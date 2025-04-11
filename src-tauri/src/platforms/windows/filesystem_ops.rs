@@ -25,42 +25,135 @@
 /// Parameters:
 /// - parent_path: The directory where the item should be created
 /// - item_name: The name of the new file or folder
-/// - item_type: Either "File" or "Directory"
+/// - is_file: True if the item is a file, false if it's a directory
 ///
 /// Returns:
 /// - Ok(()): If the item was created successfully
 /// - Err(String): If the item already exists or there was an error creating it
-pub fn create_filesystem_item(
+
+
+use std::fs;
+use std::path::Path;
+use std::io::Write;
+use crate::platforms;
+
+pub async fn create_filesystem_item(
     parent_path: String,
     item_name: String,
-    item_type: String,
+    is_file: bool,
 ) -> Result<(), String> {
-    // TODO: Implement Windows-specific file/folder creation
-    Err("Windows implementation not yet available".to_string())
+    let normalized_parent = platforms::normalize_path(&parent_path);
+    let normalized_name = platforms::normalize_path(&item_name);
+    let path = Path::new(&normalized_parent).join(&normalized_name);
+
+    // Windows-specific path validation
+    if path.to_string_lossy().contains("..\\") {
+        return Err("Path traversal attempts are not allowed".into());
+    }
+
+    if path.exists() {
+        return Err(format!(
+            "A {} named '{}' already exists.",
+            if is_file { "file" } else { "directory" },
+            normalized_name
+        ));
+    }
+
+    if is_file {
+        let mut file = fs::File::create(&path)
+            .map_err(|e| format!("Failed to create file: {}", e))?;
+        
+        // Windows-specific default content
+        file.write_all(b"@REM Add your code here\r\n")
+            .map_err(|e| format!("Failed to write initial content: {}", e))?;
+    } else {
+        fs::create_dir(&path)
+            .map_err(|e| format!("Failed to create directory: {}", e))?;
+    }
+
+    Ok(())
 }
 
-/// Deletes a file at the specified path
-///
-/// Parameters:
-/// - file_path: The path to the file to delete
-///
-/// Returns:
-/// - Ok(()): If the file was deleted successfully
-/// - Err(String): If there was an error deleting the file
-pub fn delete_file(file_path: String) -> Result<(), String> {
-    // TODO: Implement Windows-specific file deletion
-    Err("Windows implementation not yet available".to_string())
+pub async fn delete_file(file_path: String) -> Result<(), String> {
+    let normalized_path = platforms::normalize_path(&file_path);
+    let path = Path::new(&normalized_path);
+    
+    if !path.exists() {
+        return Err(format!("File '{}' does not exist.", normalized_path));
+    }
+    
+    if !path.is_file() {
+        return Err(format!("'{}' is not a file.", normalized_path));
+    }
+    
+    // Windows-specific file attribute check
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::MetadataExt;
+        let metadata = path.metadata()
+            .map_err(|e| format!("Failed to read metadata: {}", e))?;
+        
+        if metadata.file_attributes() & 0x2 != 0 { // FILE_ATTRIBUTE_HIDDEN
+            return Err("Cannot delete hidden files".into());
+        }
+    }
+    
+    fs::remove_file(path)
+        .map_err(|e| format!("Failed to delete file '{}': {}", normalized_path, e))?;
+    
+    Ok(())
 }
 
-/// Deletes a folder and all its contents at the specified path
-///
-/// Parameters:
-/// - folder_path: The path to the folder to delete
-///
-/// Returns:
-/// - Ok(()): If the folder was deleted successfully
-/// - Err(String): If there was an error deleting the folder
-pub fn delete_folder(folder_path: String) -> Result<(), String> {
-    // TODO: Implement Windows-specific folder deletion
-    Err("Windows implementation not yet available".to_string())
+pub async fn delete_folder(folder_path: String) -> Result<(), String> {
+    let normalized_path = platforms::normalize_path(&folder_path);
+    let path = Path::new(&normalized_path);
+    
+    if !path.exists() {
+        return Err(format!("Folder '{}' does not exist.", normalized_path));
+    }
+    
+    if !path.is_dir() {
+        return Err(format!("'{}' is not a folder.", normalized_path));
+    }
+    
+    // Windows-specific directory check
+    #[cfg(windows)]
+    {
+        use winapi::um::fileapi::GetDriveTypeA;
+        use std::ffi::CString;
+        
+        if let Some(root) = path.components().next() {
+            let root_path = root.as_os_str().to_str().unwrap();
+            let c_path = CString::new(root_path).unwrap();
+            let drive_type = unsafe { GetDriveTypeA(c_path.as_ptr()) };
+            
+            if drive_type == 0x1 { // DRIVE_NO_ROOT_DIR
+                return Err("Invalid network path".into());
+            }
+        }
+    }
+    
+    fs::remove_dir_all(path)
+        .map_err(|e| format!("Failed to delete folder '{}': {}", normalized_path, e))?;
+    
+    Ok(())
+}
+
+pub async fn read_file_content(file_path: String) -> Result<String, String> {
+    let normalized_path = platforms::normalize_path(&file_path);
+    let path = Path::new(&normalized_path);
+    
+    if !path.exists() {
+        return Err(format!("File '{}' does not exist.", normalized_path));
+    }
+    
+    if !path.is_file() {
+        return Err(format!("'{}' is not a file.", normalized_path));
+    }
+    
+    // Windows-specific line ending handling
+    let content = fs::read_to_string(path)
+        .map_err(|e| format!("Failed to read file '{}': {}", normalized_path, e))?;
+    
+    Ok(content.replace("\r\n", "\n"))
 }
