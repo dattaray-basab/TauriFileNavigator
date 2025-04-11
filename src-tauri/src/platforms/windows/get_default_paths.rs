@@ -23,7 +23,6 @@
 use winapi::um::fileapi::GetLogicalDrives;
 use winapi::um::winbase::GetDriveTypeW;
 use std::os::windows::ffi::OsStringExt;
-use std::path::PathBuf;
 
 #[cfg(target_os = "windows")]
 pub async fn get_default_paths() -> Result<Vec<String>, String> {
