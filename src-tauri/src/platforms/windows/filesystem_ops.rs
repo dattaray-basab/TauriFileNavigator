@@ -37,6 +37,57 @@ use std::path::Path;
 use std::io::Write;
 use crate::platforms;
 
+// Windows-specific constants
+const INVALID_CHARS: &[char] = &['<', '>', ':', '"', '/', '\\', '|', '?', '*'];
+const MAX_PATH: usize = 260;
+const RESERVED_NAMES: &[&str] = &[
+    "CON", "PRN", "AUX", "NUL",
+    "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
+];
+
+/// Validates a Windows filename
+fn validate_windows_filename(name: &str) -> Result<(), String> {
+    // Check for invalid characters
+    if name.chars().any(|c| INVALID_CHARS.contains(&c)) {
+        return Err(format!(
+            "Filename '{}' contains invalid characters. The following characters are not allowed: {}",
+            name,
+            INVALID_CHARS.iter().collect::<String>()
+        ));
+    }
+
+    // Check for reserved names (case-insensitive)
+    if RESERVED_NAMES.iter().any(|&reserved| 
+        name.to_uppercase() == reserved || 
+        name.to_uppercase().starts_with(&format!("{}.", reserved))
+    ) {
+        return Err(format!(
+            "'{}' is a reserved name in Windows and cannot be used as a filename",
+            name
+        ));
+    }
+
+    // Check for empty name or name ending with dot/space
+    if name.trim().is_empty() || name.ends_with('.') || name.ends_with(' ') {
+        return Err("Filename cannot be empty, end with a dot, or end with a space".into());
+    }
+
+    Ok(())
+}
+
+/// Validates a Windows path length
+fn validate_path_length(path: &Path) -> Result<(), String> {
+    let path_str = path.to_string_lossy();
+    if path_str.len() > MAX_PATH {
+        return Err(format!(
+            "Path length exceeds Windows maximum path length of {} characters",
+            MAX_PATH
+        ));
+    }
+    Ok(())
+}
+
 pub async fn create_filesystem_item(
     parent_path: String,
     item_name: String,
@@ -45,6 +96,12 @@ pub async fn create_filesystem_item(
     let normalized_parent = platforms::normalize_path(&parent_path);
     let normalized_name = platforms::normalize_path(&item_name);
     let path = Path::new(&normalized_parent).join(&normalized_name);
+
+    // Validate Windows filename
+    validate_windows_filename(&normalized_name)?;
+
+    // Validate path length
+    validate_path_length(&path)?;
 
     // Windows-specific path validation
     if path.to_string_lossy().contains("..\\") {
